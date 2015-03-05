@@ -585,5 +585,8 @@ OneSheeldClass OneSheeld(Serial);
 void serialEvent()
 #endif
 {
+#ifdef PCDUINO
+  Serial.process_recv();
+#endif
   OneSheeld.processInput();      
 }
