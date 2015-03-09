@@ -12,6 +12,7 @@ Push button is pressed.
 /* Include 1Sheeld library. */
 #include <OneSheeld.h>
 
+/* Forward Declarations */
 void onButtonStatusChanged(bool isPressed);
 
 void setup() 

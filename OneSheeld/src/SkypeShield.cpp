@@ -12,14 +12,16 @@
   Date:          2014.5
 
 */
-
 #include "OneSheeld.h"
 #include "SkypeShield.h"
 
 //Call Setter
 void SkypeShieldClass::call(const char *username)
 {
-	OneSheeld.sendPacket(SKYPE_ID,0,SKYPE_CALL,1,new FunctionArg(strlen(username),(byte *)username));
+	//Check length of string 
+	int usernameLength = strlen(username);
+	if(!usernameLength) return;
+	OneSheeld.sendPacket(SKYPE_ID,0,SKYPE_CALL,1,new FunctionArg(usernameLength,(byte *)username));
 }
 //Support string for Arduino
 #if !defined(ARDUINO_LINUX)
@@ -53,7 +55,10 @@ void SkypeShieldClass::call(String username)
 //VideoCall Setter
 void SkypeShieldClass::videoCall(const char * username)
 {
-	OneSheeld.sendPacket(SKYPE_ID,0,SKYPE_VIDEO_CALL,1,new FunctionArg(strlen(username),(byte *)username));
+	//Check length of string 
+	int usernameLength = strlen(username);
+	if(!usernameLength) return;
+	OneSheeld.sendPacket(SKYPE_ID,0,SKYPE_VIDEO_CALL,1,new FunctionArg(usernameLength,(byte *)username));
 }
 //Support string for Arduino
 #if !defined(ARDUINO_LINUX)
@@ -83,5 +88,7 @@ void SkypeShieldClass::videoCall(String username)
 }
 #endif
 
+#ifdef SKYPE_SHIELD
 //Instantiating Object
 SkypeShieldClass Skype;
+#endif

@@ -12,12 +12,11 @@
   Date:          2014.5
 
 */
-
 #include "OneSheeld.h"
 #include "GyroscopeSensorShield.h"
 
 //Class Constructor 
-GyroscopeSensorShield::GyroscopeSensorShield()
+GyroscopeSensorShield::GyroscopeSensorShield() : ShieldParent(GYROSCOPE_ID)
 {
 	valueX=0;
 	valueY=0;
@@ -40,25 +39,28 @@ float GyroscopeSensorShield::getZ()
 {
 	return valueZ;
 }
+
 //GyroscopeSensor Input Data processing 	
 void GyroscopeSensorShield::processData()
 {
 	//Check Function-ID
-	byte functionId=OneSheeld.getFunctionId();
+	byte functionId=getOneSheeldInstance().getFunctionId();
 	
 		if(functionId==GYROSCOPE_VALUE)
 		{
 			//Process X-Axis Value
-			valueX=OneSheeld.convertBytesToFloat(OneSheeld.getArgumentData(0));
+			valueX=getOneSheeldInstance().convertBytesToFloat(getOneSheeldInstance().getArgumentData(0));
 			//Process Y-Axis Value
-			valueY=OneSheeld.convertBytesToFloat(OneSheeld.getArgumentData(1));
+			valueY=getOneSheeldInstance().convertBytesToFloat(getOneSheeldInstance().getArgumentData(1));
 			//Process Z-Axis Value
-			valueZ=OneSheeld.convertBytesToFloat(OneSheeld.getArgumentData(2));
+			valueZ=getOneSheeldInstance().convertBytesToFloat(getOneSheeldInstance().getArgumentData(2));
 
 			//User Function Invoked
-			if(isCallBackAssigned)
+			if(isCallBackAssigned && !isInACallback())
 			{
+				enteringACallback();
 				(*changeCallBack)(valueX,valueY,valueZ);
+				exitingACallback();
 			}
 		}
 }
@@ -70,5 +72,7 @@ void GyroscopeSensorShield::setOnValueChange(void (*userFunction)(float valueX, 
 	isCallBackAssigned=true;
 }
 
+#ifdef GYROSCOPE_SHIELD
 //Instatntiating Object
 GyroscopeSensorShield GyroscopeSensor ;
+#endif

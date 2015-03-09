@@ -14,7 +14,7 @@ shield screen on our app to any Arduino pin you want.
 
 */
 
-#include "Arduino.h"
+#include <OneSheeld.h>
 
 /* Seven segment pins. */
 int segmentA = 2;
@@ -60,7 +60,7 @@ void loop()
   { 
       for (int count = 0 ; count < 10 ; count++)
       {
-        delay(1000);
+        OneSheeld.delay(1000);
         int pin = 2;
         /* Output the digit to the seven segment. */
         for (int digit = 0 ; digit < 7; digit++)

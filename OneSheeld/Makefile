@@ -35,6 +35,11 @@ SRCS = \
 	src/GPSShield.cpp \
 	src/GravitySensorShield.cpp \
 	src/GyroscopeSensorShield.cpp \
+	src/HttpRequest.cpp \
+	src/HttpResponse.cpp \
+	src/InternetShield.cpp \
+	src/JsonKey.cpp \
+	src/JsonKeyChain.cpp \
 	src/KeyboardShield.cpp \
     src/KeypadShield.cpp \
 	src/LCDShield.cpp \
@@ -48,12 +53,14 @@ SRCS = \
 	src/OneSheeldPrint.cpp \
 	src/OneSheeldPrintln.cpp \
 	src/OrientationSensorShield.cpp \
+	src/PatternShield.cpp \
 	src/PhoneShield.cpp \
 	src/PressureSensorShield.cpp \
 	src/ProximitySensorShield.cpp \
 	src/PushButtonShield.cpp \
 	src/RemoteOneSheeld.cpp \
 	src/SevenSegmentShield.cpp \
+	src/ShieldParent.cpp \
 	src/SkypeShield.cpp \
 	src/SliderShield.cpp \
 	src/SMSShield.cpp \
@@ -67,24 +74,25 @@ SRCS = \
 
 #OBJS = $(SRCS:%.c=%.o)
 OBJS = $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SRCS)))
+TARGET = ./bin
 
 %.o: %.cpp
 	@rm -f $@ 
-	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@ -Wno-deprecated-declarations
+	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@ -Wno-deprecated-declarations -Wno-conversion-null
 
 %.o: %.c
 	@rm -f $@ 
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@ -Wno-deprecated-declarations
 
-LIB_STATIC = bin/OneSheeld.a
-LIB_SHARE = bin/OneSheeld.so
+LIB_STATIC = $(TARGET)/OneSheeld.a
+LIB_SHARE = $(TARGET)/OneSheeld.so
 LIB = $(LIB_STATIC) $(LIB_SHARE)
 
-all: $(LIB) 
+all: $(LIB)
 	make -C sample/
 
-
 $(LIB): $(OBJS)
+	mkdir -p $(TARGET)
 	$(AR) cq $(LIB_STATIC) $(OBJS)
 	$(CXX) -shared -Wl,-soname,$(LIB_SHARE) -o $(LIB_SHARE) $(OBJS)
 

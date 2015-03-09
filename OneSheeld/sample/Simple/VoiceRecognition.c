@@ -12,6 +12,7 @@ music using voice commands.
 /* Include 1Sheeld library. */
 #include <OneSheeld.h>
 
+/* Forward Declarations */
 void error(byte errorData);
 
 /* Voice commands set by the user. */

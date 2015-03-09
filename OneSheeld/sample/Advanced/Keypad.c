@@ -17,6 +17,7 @@ it at your own risk.
 /* Include 1Sheeld library. */
 #include <OneSheeld.h>
 
+/* Forward Declarations */
 boolean isOnePressed();
 boolean isTwoPressed();
 boolean isThreePressed();
@@ -68,7 +69,7 @@ void loop()
    if(iterations == 4)
    {    
         digitalWrite(ledPin,HIGH);
-        delay(500);
+        OneSheeld.delay(500);
         digitalWrite(ledPin,LOW);
         /* Reset the iterator. */
         iterations = 0;

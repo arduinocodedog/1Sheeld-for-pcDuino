@@ -12,14 +12,13 @@
   Date:          2014.5
 
 */
-
 #include "OneSheeld.h"
 #include "SliderShield.h"
 
 //Class Constructor
-SliderShield::SliderShield()
+SliderShield::SliderShield() : ShieldParent(SLIDER_ID)
 {
-	value=0x00;
+	value=0;
 	isCallBackAssigned=false;
 }
 //Slider Getter
@@ -27,18 +26,41 @@ byte SliderShield::getValue()
 {
 	return value;
 }
+
+void SliderShield::setValue(int value)
+{
+	byte copiedValue ;
+	if(value>255) 
+	{
+		copiedValue= 255;
+	}
+	else if (value < 0)
+	{
+		copiedValue= 0;
+	}
+	else
+	{
+		copiedValue = value;
+	}
+	OneSheeld.sendPacket(SLIDER_ID,0,SLIDER_SET,1,new FunctionArg(1,&copiedValue));
+}
+
 //Phone Input Data Processing 
 void SliderShield::processData()
 {
 	//Checking Function-ID
-	byte functionId= OneSheeld.getFunctionId();
+	byte functionId= getOneSheeldInstance().getFunctionId();
 
 	if(functionId==SLIDER_VALUE)
 		{
-			value= OneSheeld.getArgumentData(0)[0];
+			value= getOneSheeldInstance().getArgumentData(0)[0];
 			//Users Function Invoked
-			if(isCallBackAssigned)
+			if(isCallBackAssigned && !isInACallback())
+			{
+				enteringACallback();
 				(*changeCallBack)(value);
+				exitingACallback();
+			}
 		}
 }
 //Users Function Setter
@@ -48,5 +70,7 @@ void SliderShield::setOnValueChange(void (*userFunction)(byte sliderValue))
 	isCallBackAssigned=true;
 }
 
+#ifdef SLIDER_SHIELD
 //Instatntiating Object
 SliderShield Slider;
+#endif

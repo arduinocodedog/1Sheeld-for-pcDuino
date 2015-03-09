@@ -12,24 +12,25 @@
   Date:          2014.5
 
 */
-
 #include "OneSheeld.h"
 #include "TwitterShield.h"
 
 //Class Constructor
-TwitterShieldClass::TwitterShieldClass()
+TwitterShieldClass::TwitterShieldClass() : ShieldParent(TWITTER_ID)
 {
- 	userName = 0;
- 	tweetText = 0;
+ 	userName = NULL;
+ 	tweetText = NULL;
  	isCallBackAssigned=false;
- 	isCheckingTriggered=false;
  	usedSetOnWithString=false;
  	isItNewTweet=false;
 }
 //Tweet Sender
 void TwitterShieldClass::tweet(const char *data)
 {
-	OneSheeld.sendPacket(TWITTER_ID,0,TWITTER_SEND,1,new FunctionArg(strlen(data),(byte*)data));
+	//Check length of string 
+	int dataLength = strlen(data);
+	if(!dataLength) return;
+	OneSheeld.sendPacket(TWITTER_ID,0,TWITTER_SEND,1,new FunctionArg(dataLength,(byte*)data));
 }
 //Support string for Arduino
 #if !defined(ARDUINO_LINUX)
@@ -62,8 +63,12 @@ void TwitterShieldClass::tweet(String data)
 //Message Sender
 void TwitterShieldClass::sendMessage(const char* username,const char* message)
 {
-
-	OneSheeld.sendPacket(TWITTER_ID,0,TWITTER_SEND_DIRECT_MESSAGE,2,new FunctionArg(strlen(username),(byte*)username),new FunctionArg(strlen(message),(byte*) message));
+	//Check length of string 
+	int usernameLength = strlen(username); 
+	int messageLength = strlen(message);
+	if(!usernameLength || !messageLength) return;
+	OneSheeld.sendPacket(TWITTER_ID,0,TWITTER_SEND_DIRECT_MESSAGE,2,new FunctionArg(usernameLength,(byte*)username),
+																	new FunctionArg(messageLength,(byte*) message));
 
 }
 
@@ -106,7 +111,11 @@ void TwitterShieldClass::sendMessage(String username , String message)
 
 void TwitterShieldClass::tweetLastPicture(const char * pictureText , byte imageSource)
 {
-	OneSheeld.sendPacket(TWITTER_ID,0,TWITTER_POST_LAST_PIC,2,new FunctionArg(strlen(pictureText),(byte*)pictureText),new FunctionArg(1,(byte *)&imageSource));
+	//Check length of string 
+	int pictureTextLength = strlen(pictureText);
+	if(!pictureTextLength) return;
+	OneSheeld.sendPacket(TWITTER_ID,0,TWITTER_POST_LAST_PIC,2,new FunctionArg(pictureTextLength,(byte*)pictureText),
+															  new FunctionArg(1,(byte *)&imageSource));
 }
 
 //Support string for Arduino
@@ -143,12 +152,18 @@ bool TwitterShieldClass::isNewTweet()
 }
 void TwitterShieldClass::trackKeyword(const char * keyword)
 {
-	OneSheeld.sendPacket(TWITTER_ID,0,TWITTER_TRACK_KEYWORD,1,new FunctionArg(strlen(keyword),(byte*)keyword));
+	//Check length of string 
+	int keywordLength = strlen(keyword);
+	if(!keywordLength) return;
+	OneSheeld.sendPacket(TWITTER_ID,0,TWITTER_TRACK_KEYWORD,1,new FunctionArg(keywordLength,(byte*)keyword));
 }
 
 void TwitterShieldClass::untrackKeyword(const char * keyword)
 {
-	OneSheeld.sendPacket(TWITTER_ID,0,TWITTER_UNTRACK_KEYWORD,1,new FunctionArg(strlen(keyword),(byte*)keyword));
+	//Check length of string 
+	int keywordLength = strlen(keyword);
+	if(!keywordLength) return;
+	OneSheeld.sendPacket(TWITTER_ID,0,TWITTER_UNTRACK_KEYWORD,1,new FunctionArg(keywordLength,(byte*)keyword));
 }
 
 //Support string for Arduino
@@ -236,7 +251,7 @@ String TwitterShieldClass::getTweetAsString()
 void TwitterShieldClass::processData()
 {
 	//Checking Function-ID
-	byte functionId = OneSheeld.getFunctionId();
+	byte functionId = getOneSheeldInstance().getFunctionId();
 	if( functionId == TWITTER_GET_TWEET)
 	{	
 		isItNewTweet = true;
@@ -248,43 +263,45 @@ void TwitterShieldClass::processData()
 		{
 			free(tweetText);
 		}
-		int userNameLength=OneSheeld.getArgumentLength(0);
+		int userNameLength=getOneSheeldInstance().getArgumentLength(0);
 		userName = (char*)malloc(sizeof(char)*(userNameLength+1));
 		for (int j=0; j<userNameLength; j++)
 		{
-			userName[j]=OneSheeld.getArgumentData(0)[j];
+			userName[j]=getOneSheeldInstance().getArgumentData(0)[j];
 		}
 		userName[userNameLength]='\0';
 
-		int tweetLength=OneSheeld.getArgumentLength(1);
+		int tweetLength=getOneSheeldInstance().getArgumentLength(1);
 		tweetText = (char*)malloc(sizeof(char)*(tweetLength+1));
 
 		for(int i=0 ;i<tweetLength;i++)
 		{
-			tweetText[i]=OneSheeld.getArgumentData(1)[i];
+			tweetText[i]=getOneSheeldInstance().getArgumentData(1)[i];
 		}
 			tweetText[tweetLength]='\0';
 		//Users Function Invoked
-		if(isCallBackAssigned)
+		if(!isInACallback())
 		{
-			(*changeCallBack)(userName,tweetText);
-		}
+			if(isCallBackAssigned)
+			{
+				enteringACallback();
+				(*changeCallBack)(userName,tweetText);
+				exitingACallback();
+			}
 
-		if(usedSetOnWithString)
-		{
-			String usernameString(userName);
-			String tweetTextString(tweetText);
-
-			(*changeCallBackString)(usernameString,tweetTextString);
+			if(usedSetOnWithString)
+			{
+				String usernameString(userName);
+				String tweetTextString(tweetText);
+				enteringACallback();
+				(*changeCallBackString)(usernameString,tweetTextString);
+				exitingACallback();
+			}
 		}
-	}
-	else if(functionId == TWITTER_CHECK_SELECTED) //called when twitter shield is selected
-	{
-		(*selectedCallBack)();
 	}
 }
 //Users Function Setter
-void TwitterShieldClass::setOnNewTweet(void (*userFunction)(char * userName ,char * tweetText))
+void TwitterShieldClass::setOnNewTweet(void (*userFunction)(char  userName [],char  tweetText []))
 {
 	changeCallBack=userFunction;
 	isCallBackAssigned=true;
@@ -296,12 +313,8 @@ void TwitterShieldClass::setOnNewTweet(void (*userFunction)(String userName ,Str
 	changeCallBackString=userFunction;
 	usedSetOnWithString=true;
 }
-//Checking Twitter selected
-void TwitterShieldClass::setOnTwitterSelected(void (*userFunction)(void))
-{
-	selectedCallBack=userFunction;
-	isCheckingTriggered=true;
-}
 
+#ifdef TWITTER_SHIELD
 //Instantiating Object 
 TwitterShieldClass Twitter;
+#endif

@@ -12,80 +12,76 @@
   Date:          2014.5
 
 */
-
 #include "OneSheeld.h"
 #include "GamePadShield.h"
 
 
 
 //Class Constructor
-GamePadShield::GamePadShield()
+GamePadShield::GamePadShield() : ShieldParent(GAMEPAD_ID)
 {
+	value =0;
 	isCallBackAssigned=false;
 }
 
 //Up ArrowChecker
 bool GamePadShield::isUpPressed()
 {
-	return up ;
+	return !!(value & (1<<UP_BIT));
 }
 //Down Arrow Checker 
 bool GamePadShield::isDownPressed()
 {
-	return down ;
+	return !!(value & (1<<DOWN_BIT));
 }
 //Left Arrow Checker
 bool GamePadShield::isLeftPressed()
-{
-	return left ;
+{	
+	return  !!(value & (1<<LEFT_BIT));
 }
 //Right Arrow Checker
 bool GamePadShield::isRightPressed()
 {
-	return right ;
+	return !!(value & (1<<RIGHT_BIT));
 }
 //Orange Button Checker
 bool GamePadShield::isOrangePressed()
 {
-	return orange ;
+	return !!(value & (1<<ORANGE_BIT));
 }
 //Red Button Checker 
 bool GamePadShield::isRedPressed()
 {
-	return red ;
+	return !!(value & (1<<RED_BIT));
 }
 //Green Button Checker 
 bool GamePadShield::isGreenPressed()
 {
-	return green ;
+	return !!(value & (1<<GREEN_BIT));
 }
 //Blue Button Checker
 bool GamePadShield::isBluePressed()
 {
-	return blue ;
+	return !!(value & (1<<BLUE_BIT));
 }
+
 //GamePad Input Data Processing  
 void GamePadShield::processData()
 {
 	//Checking Function-ID
-	byte functionId =OneSheeld.getFunctionId();
+	byte functionId =getOneSheeldInstance().getFunctionId();
 	if(functionId==GAMEPAD_VALUE)
 	{
-		byte value=OneSheeld.getArgumentData(0)[0];
-		
-		up = !!(value & (1<<UP_BIT));
-		down = !!(value & (1<<DOWN_BIT));
-		left = !!(value & (1<<LEFT_BIT));
-		right = !!(value & (1<<RIGHT_BIT));
-		orange = !!(value & (1<<ORANGE_BIT));
-		red = !!(value & (1<<RED_BIT));
-		green = !!(value & (1<<GREEN_BIT));
-		blue = !!(value & (1<<BLUE_BIT));
-
+		value=getOneSheeldInstance().getArgumentData(0)[0];
 		//Users Function Invoked
-		if(isCallBackAssigned)
+		if(isCallBackAssigned && !isInACallback())
 		{
-			(*buttonChangeCallBack)(up , down , left , right , orange , red , green , blue);
+			enteringACallback();
+			(*buttonChangeCallBack)(!!(value & (1<<UP_BIT)),      !!(value & (1<<DOWN_BIT)),
+									!!(value & (1<<LEFT_BIT)), 	  !!(value & (1<<RIGHT_BIT)),
+									!!(value & (1<<ORANGE_BIT)),  !!(value & (1<<RED_BIT)), 
+									!!(value & (1<<GREEN_BIT)),   !!(value & (1<<BLUE_BIT)));
+			exitingACallback();
 		}
 	}
 }
@@ -97,5 +93,7 @@ void GamePadShield::setOnButtonChange(void (* userFunction)(unsigned char up,uns
 	isCallBackAssigned=true;
 }
 
+#ifdef GAMEPAD_SHIELD
 //Instantiating Object
 GamePadShield GamePad;
+#endif

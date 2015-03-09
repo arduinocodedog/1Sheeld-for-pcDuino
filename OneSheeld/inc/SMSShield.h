@@ -16,13 +16,15 @@
 #ifndef SMSShield_h
 #define SMSShield_h
 
-//Output Function ID
+#include "ShieldParent.h"
+
+//Outputs Functions ID's
 #define SMS_SEND 0x01
+
 //Input Functions ID's  
 #define SMS_GET  0x01
 
-
-class SMSShieldClass 
+class SMSShieldClass : public ShieldParent
 {
 public:
 	//Constructor
@@ -37,8 +39,9 @@ public:
 	char * getNumber();
 	String getNumberAsString();
 	//setOnChange for Users Function
-	void setOnSmsReceive(void (*)(char*,char*));
+	void setOnSmsReceive(void (*)(char [],char []));
 	void setOnSmsReceive(void (*)(String ,String ));
+
 private:
 	//Reserve Variable
 	char * text;
@@ -51,11 +54,8 @@ private:
 	bool usedSetOnWithString;
 	//Process Input Data 
 	void processData();
-	void (*changeCallBack)(char*,char*);
+	void (*changeCallBack)(char [],char []);
 	void (*changeCallBackString)(String ,String);
-	
-	
-	friend class OneSheeldClass ;
 };
 
 //Extern Object

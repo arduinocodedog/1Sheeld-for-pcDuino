@@ -19,7 +19,6 @@
 #define LED_ID 		 	 	 0x02
 #define PUSH_BUTTON_ID 	 	 0x03
 #define TOGGLE_BUTTON_ID 	 0x04
-#define FLASH_ID			 0x05
 #define NOTIFICATION_ID 	 0x06
 #define SEV_SEG_ID 			 0x07
 #define BUZZER_ID 		 	 0x08
@@ -52,4 +51,6 @@
 #define VOICE_RECOGNITION_ID 0x24
 #define DATA_LOGGER_ID	  	 0x25
 #define TERMINAL_ID			 0x26
+#define PATTERN_ID			 0x27
 #define REMOTE_SHEELD_ID	 0x28
+#define INTERNET_ID	 		 0x29

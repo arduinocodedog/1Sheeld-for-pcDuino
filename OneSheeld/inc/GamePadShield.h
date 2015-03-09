@@ -16,6 +16,8 @@
 #ifndef GamePadShield_h
 #define GamePadShield_h
 
+#include "ShieldParent.h"
+
 //Input Function ID
 #define GAMEPAD_VALUE 0x01
 
@@ -31,7 +33,7 @@
 
 
 
-class GamePadShield
+class GamePadShield : public ShieldParent
 {
 public:
 	//Constructor
@@ -45,17 +47,22 @@ public:
 	bool isRedPressed();
 	bool isGreenPressed();
 	bool isBluePressed();
+	
 	//setOnChange for Users Function
-	void setOnButtonChange(void (*)(unsigned char , unsigned char ,unsigned char , unsigned char ,unsigned char ,unsigned char ,unsigned char ,unsigned char ));
+	void setOnButtonChange(void (*)(unsigned char , unsigned char ,
+									unsigned char , unsigned char ,
+									unsigned char , unsigned char ,
+									unsigned char , unsigned char ));
 private:
 	//Reserve Variables
+	byte value;
 	bool isCallBackAssigned;
-	bool up ,down ,left ,right,orange ,red ,green, blue;
 	//Process Input Data  
 	void processData();
-	void (*buttonChangeCallBack)(unsigned char , unsigned char ,unsigned char , unsigned char ,unsigned char ,unsigned char ,unsigned char ,unsigned char );
-	
-	friend class OneSheeldClass ;
+	void (*buttonChangeCallBack)(unsigned char , unsigned char ,
+								 unsigned char , unsigned char ,
+								 unsigned char ,unsigned char  ,
+								 unsigned char ,unsigned char );
 };
 
 //Extern Object

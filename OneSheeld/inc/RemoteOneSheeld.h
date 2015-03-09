@@ -50,9 +50,9 @@ public:
 	void sendMessage(const char* ,const char*);
 	void sendMessage(String ,String );
 	//Getters
-	void setOnNewMessage(void (*)(char*,float));
+	void setOnNewMessage(void (*)(char [],float));
 	void setOnNewMessage(void (*)(String , float));
-	void setOnNewMessage(void(*)(char* , char*));
+	void setOnNewMessage(void(*)(char [], char []));
 	void setOnNewMessage(void(*)(String , String));
 	void setOnSubscribeOrDigitalChange(void (*)(byte , bool));
 	//Subscribers
@@ -75,6 +75,7 @@ private:
 	char * stringKey;
 	char * incommingStringData;
 	float incommingFloatValue;
+	int remoteOneSheeldAddressLength;
 	//Booleans
 	bool isFloatMessageAssigned;
 	bool isStringMessageAssigned;
@@ -82,11 +83,11 @@ private:
 	bool usedSetOnFloatWithString;
 	bool usedSetOnStringWithString;
 	//Functions
-	void processData();
+	void processFrame();
 	//Set On Change for user functions
-	void (*changeFloatCallBack)(char*, float);
+	void (*changeFloatCallBack)(char [], float);
 	void (*changeFloatCallBackString)(String ,float);
-	void (*changeStringCallBack)(char*, char*);
+	void (*changeStringCallBack)(char [], char []);
 	void (*changeStringCallBackString)(String ,String);
 	void (*changeSubscribeOrDigitalCallBack)(byte ,bool);
 	//Checker

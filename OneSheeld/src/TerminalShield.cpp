@@ -12,12 +12,11 @@
   Date:          2014.9
 
 */
-
 #include "OneSheeld.h"
 #include "TerminalShield.h"
 
 //Constructor
-TerminalShield::TerminalShield():PrintlnClass(TERMINAL_ID,TERMINAL_WRITE,TERMINAL_PRINT)
+TerminalShield::TerminalShield():PrintlnClass(TERMINAL_ID,TERMINAL_WRITE,TERMINAL_PRINT),ShieldParent(TERMINAL_ID)
 {}
 
 //Read from Android
@@ -48,18 +47,22 @@ int TerminalShield::readBytes(char *arr, int length)
  	}
   return count;
 }
+
 //Terminal Incomming Data processing
 void TerminalShield::processData()
 {
-	byte functionID = OneSheeld.getFunctionId();
-	byte dataLength = OneSheeld.getArgumentLength(0);
+	byte functionID = getOneSheeldInstance().getFunctionId();
+	byte dataLength = getOneSheeldInstance().getArgumentLength(0);
 	if(functionID == TERMINAL_READ)
 	{
 			for (int j=0; j<dataLength; j++)
 			{
-				buffer.push(OneSheeld.getArgumentData(0)[j]);
+				buffer.push(getOneSheeldInstance().getArgumentData(0)[j]);
 			}
 	}
 }
+
+#ifdef TERMINAL_SHIELD
 //instantiating Object 
 TerminalShield Terminal;
+#endif

@@ -16,18 +16,27 @@
 #ifndef SliderShield_h
 #define SliderShield_h
 
+#include "ShieldParent.h"
+
+
 //Input Function ID
 #define SLIDER_VALUE 0x01
 
-class SliderShield
+//Output Function ID
+#define SLIDER_SET	0x01
+
+class SliderShield : public ShieldParent
 {
 public:
 	//Constructor
 	SliderShield();
 	//Getter
 	byte getValue();
+	//Setter
+	void setValue(int );
 	//setOnChange for Users Function
 	void setOnValueChange(void (*userFunction)(byte));
+
 private:
 	//Reserve Variable 
 	byte value;	
@@ -36,11 +45,6 @@ private:
 	//Process Input Data 
 	void processData();
 	void(*changeCallBack)(byte);
-
-	friend class OneSheeldClass;
-
-
-
 };
 
 //Extern Object

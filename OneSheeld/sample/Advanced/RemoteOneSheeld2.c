@@ -14,6 +14,7 @@ Note : you have to burn RemoteOneSheeld1 on the other 1Sheeld for this example t
 /* Include 1Sheeld Library. */
 #include <OneSheeld.h>
 
+/* Forward Declarations */
 void sayItLoud(char * remoteAddress ,char * key , char * voiceCommand);
 
 void setup()

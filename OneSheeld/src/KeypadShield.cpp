@@ -12,14 +12,12 @@
   Date:          2014.5
 
 */
-
 #include "OneSheeld.h"
 #include "KeypadShield.h"
 
 
-
 //Class Constructor
-KeypadShieldClass::KeypadShieldClass()
+KeypadShieldClass::KeypadShieldClass() : ShieldParent(KEYPAD_SHIELD_ID)
 {
   row=0;
   col=0;
@@ -52,33 +50,19 @@ return !!col;
 void KeypadShieldClass::processData()
 {
   //Checking Function-ID
-  byte function_Number=OneSheeld.getFunctionId();
-  if (function_Number==KEYPAD_VALUE)
+  byte functionId=getOneSheeldInstance().getFunctionId();
+  if (functionId==KEYPAD_VALUE)
    { 
-     row=OneSheeld.getArgumentData(0)[0];
-     col=OneSheeld.getArgumentData(1)[0];
+     row=getOneSheeldInstance().getArgumentData(0)[0];
+     col=getOneSheeldInstance().getArgumentData(1)[0];
      //Users Function Invoked
-     if (isCallbackAssigned)
-     {
-		byte bitrow = (byte) findbitposition(row);
-		byte bitcol = (byte) findbitposition(col);
-		(*buttonChangeCallback)(bitrow,bitcol);
-     }
+     if (isCallbackAssigned && !isInACallback())
+      {
+        enteringACallback();
+        (*buttonChangeCallback)(row,col);
+        exitingACallback();
+      }
    }
-   
-}
-
-int KeypadShieldClass::findbitposition(int val)
-{
-	int bitpos = 0;
-	
-	while (val > 0)
-	{
-		val = val >> 1;
-		bitpos++;
-	}
-	
-	return bitpos - 1;
 }
 
 //Users Function Setter 
@@ -88,6 +72,8 @@ void KeypadShieldClass::setOnButtonChange(void (*userFunction)(byte row ,byte co
   isCallbackAssigned=true;
 }
 
+#ifdef KEYPAD_SHIELD
 //Instatntiating Object
 KeypadShieldClass Keypad;
+#endif
 

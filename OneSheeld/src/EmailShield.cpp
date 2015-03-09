@@ -12,20 +12,38 @@
   Date:          2014.5
 
 */
-
 #include "OneSheeld.h"
 #include "EmailShield.h"
 
 //Email Sender
 void EmailShieldClass::send(const char *email ,const char* subject,const char* message)
 {
-	OneSheeld.sendPacket(EMAIL_ID,0,EMAIL_SEND,3,new FunctionArg(strlen(email),(byte*)email),new FunctionArg(strlen(subject),(byte*)subject),new FunctionArg(strlen(message),(byte*)message));
+	//Check string length
+	int emailLength = strlen(email);
+	int subjectLength = strlen(subject);
+	int messageLength = strlen(message);
+	if(!emailLength||!subjectLength||!messageLength) return;
+	OneSheeld.sendPacket(EMAIL_ID,0,EMAIL_SEND,3,new FunctionArg(emailLength,(byte*)email),
+												 new FunctionArg(subjectLength,(byte*)subject),
+												 new FunctionArg(messageLength,(byte*)message));
 }
 
 //Attaching picture
 void EmailShieldClass::attachLastPicture(const char *email ,const char* subject,const char* message , byte imageSource)
 {
-	OneSheeld.sendPacket(EMAIL_ID,0,EMAIL_ATTACH_PICTURE,4,new FunctionArg(strlen(email),(byte*)email),new FunctionArg(strlen(subject),(byte*)subject),new FunctionArg(strlen(message),(byte*)message),new FunctionArg(1,&imageSource));
+	//Check email length
+	int emailLength = strlen(email);
+	if(!emailLength) return;
+	//Check email length
+	int subjectLength = strlen(subject);
+	if(!subjectLength) return;
+	//Check email length
+	int messageLength = strlen(message);
+	if(!messageLength) return;
+	OneSheeld.sendPacket(EMAIL_ID,0,EMAIL_ATTACH_PICTURE,4,new FunctionArg(emailLength,(byte*)email),
+														   new FunctionArg(subjectLength,(byte*)subject),
+														   new FunctionArg(messageLength,(byte*)message),
+														   new FunctionArg(1,&imageSource));
 }
 
 //Support strings Arduino
@@ -117,5 +135,8 @@ void EmailShieldClass::attachLastPicture(String email, String subject , String m
 	attachLastPicture(cTypeEmail,cTypeSubject,cTypeMessage,imageSource);
 }
 #endif
+
+#ifdef EMAIL_SHIELD
 //Instantiating object 
 EmailShieldClass Email;
+#endif

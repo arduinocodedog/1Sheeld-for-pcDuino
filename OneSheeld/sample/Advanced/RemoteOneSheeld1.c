@@ -11,6 +11,9 @@ LED on another 1Sheeld system through the internet.
  
 /* Include 1Sheeld library. */
 #include <OneSheeld.h>
+
+/* Forward Declarations */
+void toggleLed(byte pinNumber , bool remotePinValue);
  
 /*
 
@@ -23,9 +26,6 @@ RemoteOneSheeld usaSheeld ("-----REMOTE-1SHEELD-ADDRESS-----");
 
 int remotePin = 11;
 int ledPin = 13;
-
-void toggleLed(byte pinNumber , bool remotePinValue);
-
 
 void setup()
 {

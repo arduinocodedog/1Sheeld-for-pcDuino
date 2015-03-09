@@ -12,6 +12,7 @@ voice commands.
 /* Include 1Sheeld library. */
 #include <OneSheeld.h>
 
+/* Forward Declarations */
 void getCommand();
 
 /* Counters and iterators. */ 

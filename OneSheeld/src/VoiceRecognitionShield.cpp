@@ -17,9 +17,9 @@
 
 
 //Constructor 
-VoiceRecognitionShield::VoiceRecognitionShield()
+VoiceRecognitionShield::VoiceRecognitionShield() : ShieldParent(VOICE_RECOGNITION_ID)
 {
-	voice =0;
+	voice =NULL;
 	voicetextLength=-1;
 	isCallBackAssigned=false;
 	newCommand=false;
@@ -58,7 +58,7 @@ String VoiceRecognitionShield::getCommandAsString()
 //Process Input Data
 void VoiceRecognitionShield::processData()
 {
-	byte functionID = OneSheeld.getFunctionId();
+	byte functionID = getOneSheeldInstance().getFunctionId();
 
 	if(functionID==VOICE_GET)
 	{
@@ -67,11 +67,11 @@ void VoiceRecognitionShield::processData()
 			free(voice);
 		}
 		
-		voicetextLength=OneSheeld.getArgumentLength(0);
+		voicetextLength=getOneSheeldInstance().getArgumentLength(0);
 		voice = (char*)malloc(sizeof(char)*(voicetextLength+1));
 		for (int j=0; j<voicetextLength; j++)
 		{
-			voice[j]=OneSheeld.getArgumentData(0)[j];
+			voice[j]=getOneSheeldInstance().getArgumentData(0)[j];
 		}
 		voice[voicetextLength]='\0';
 
@@ -79,31 +79,39 @@ void VoiceRecognitionShield::processData()
 		newCommand=true;
 
 		//Invoke Users function
-		if(isCallBackAssigned)
+		if(!isInACallback())
 		{
-			(*changeCallBack)(voice);
-		}
-		//Invoke Users function
-		if (usedSetOnWithString)
-		{
-			String convertedIncomingVoice (voice);
-
-			(*changeCallBackString)(convertedIncomingVoice);
+			if(isCallBackAssigned)
+			{
+				enteringACallback();
+				(*changeCallBack)(voice);
+				exitingACallback();
+			}
+			//Invoke Users function
+			if (usedSetOnWithString)
+			{
+				String convertedIncomingVoice (voice);
+				enteringACallback();
+				(*changeCallBackString)(convertedIncomingVoice);
+				exitingACallback();
+			}
 		}
 
 	}
-	else if(functionID==VOICE_GET_ERROR)
+	else if(functionID==VOICE_GET_ERROR && !isInACallback())
 	{
-		errorNumber=OneSheeld.getArgumentData(0)[0];
+		errorNumber=getOneSheeldInstance().getArgumentData(0)[0];
 		//Invoke User Function
 		if(errorAssigned)
 		{
+			enteringACallback();
 			(*errorCallBack)(errorNumber);
+			exitingACallback();
 		}
 	}
 }
 //Users Function Setter 
-void VoiceRecognitionShield::setOnNewCommand(void (*userFunction)(char * voice))
+void VoiceRecognitionShield::setOnNewCommand(void (*userFunction)(char  voice[]))
 {
 	changeCallBack=userFunction;
 	isCallBackAssigned=true;
@@ -121,5 +129,8 @@ void VoiceRecognitionShield::setOnError(void (*userFunction)(byte error))
 	errorCallBack=userFunction;
 	errorAssigned=true;
 }
+
+#ifdef VOICE_RECOGNITION_SHIELD
 //Instantiating object 
 VoiceRecognitionShield VoiceRecognition;
+#endif

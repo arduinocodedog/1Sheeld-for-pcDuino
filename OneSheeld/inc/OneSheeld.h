@@ -16,14 +16,16 @@
 #ifndef OneSheeld_h
 #define OneSheeld_h
 
+#ifdef PCDUINO
 typedef unsigned char byte;
+#endif
 
 #include "Stream.h"
 #include "Arduino.h"
-
+#include "ShieldsIds.h"
 #include "IncludedShieldsDefines.h"
 #include "ShieldsIncludes.h"
-#include "ShieldsIds.h"
+#include "ShieldParent.h"
 
 #define ONE_SECOND 1000
 
@@ -33,20 +35,26 @@ typedef unsigned char byte;
 #define START_OF_FRAME  0xFF
 #define END_OF_FRAME 	0x00
 //Library Version
-#define LIBRARY_VERSION 4
+#define LIBRARY_VERSION 5
 //Time between sending Frames
 #define TIME_GAP		200UL
+
+#ifdef REMOTE_SHIELD
 //Maximum number of remote connections
 #define MAX_REMOTE_CONNECTIONS 10
+#endif
 
 //Selecting picture from folder
 #define FROM_ONESHEELD_FOLDER 0x00
 #define FROM_CAMERA_FOLDER	  0x01
 
-//#define DEBUG
+// #define DEBUG
 
 //Output function ID's
 #define SEND_LIBRARY_VERSION	0x01
+#define CALLBACK_ENTERED		0x03
+#define WAIT_RESET_APPLICATION	0x02
+#define CALLBACK_EXITED			0x04
 //Input function ID's 
 //Checking Bluetooth connection
 #define CONNECTION_CHECK_FUNCTION 0x01
@@ -54,6 +62,8 @@ typedef unsigned char byte;
 #define LIBRARY_VERSION_REQUEST	0x03
 
 
+//Numer of Shields
+#define SHIELDS_NO	38
 
 //Class for Datalength and Data
 class FunctionArg
@@ -105,36 +115,54 @@ public:
 	byte * getArgumentData(byte );
 	byte * convertFloatToBytes(float );
 	float convertBytesToFloat(byte * );
+	#ifdef REMOTE_SHIELD
 	void listenToRemoteOneSheeld(RemoteOneSheeld *);
+	#endif
 	//Processing Incomming Frames
 	void processInput();		
 	//Library Starter
 	void begin();
+	//Adding objects in array 
+	static void addToShieldsArray(ShieldParent *);
+	#ifdef INTERNET_SHIELD
+	static void addToUnSentRequestsArray(HttpRequest *);
+	#endif
+	static bool isInitialized();
 	//Frame Sender
-	void sendPacket(byte shieldID, byte instanceID,byte functionCommand, byte argNo, ...);
+	void sendPacket(byte , byte ,byte , byte , ...);
+	void sendPacket(byte , byte , byte , byte , FunctionArg ** );
 	//PulseWidthModulation Getter 
 	unsigned char analogRead(int );
 	//Set on change for users function
-	void setOnNewMessage(void (*)(char * ,char * ,float));
+	void setOnNewMessage(void (*)(char  [] ,char [] ,float));
 	void setOnNewMessage(void (*)(String ,String ,float));
-	void setOnNewMessage(void (*)(char * ,char * ,char *));
+	void setOnNewMessage(void (*)(char [] ,char [] ,char []));
 	void setOnNewMessage(void (*)(String  ,String ,String ));	 
 	Stream & OneSheeldSerial;
-
+	void delay(unsigned long);
+	bool isCallbacksInterruptsSet();
+	void enableCallbacksInterrupts();
+	void disableCallbacksInterrupts();
 private:
 	//Reserve Variables
 	FloatUnion convertFloatUnion;
 	bool isArgumentsNumberMalloced;
 	bool isArgumentLengthMalloced;
 	bool isOneSheeldConnected;
-	bool isFirstFrame;
+	static bool isFirstFrame;
 	bool framestart;
+	#ifdef REMOTE_SHIELD
 	//Remote OneSheeld fnuctions
 	bool isSetOnFloatMessageInvoked;
 	bool isSetOnStringMessageInvoked;
 	bool usedSetOnFloatWithString;
 	bool usedSetOnStringWithString;
 	bool isOneSheeldRemoteDataUsed;
+	//Number of connected Remote 1Sheelds
+	int remoteOneSheeldsCounter;
+	#endif
+	static bool inACallback;
+	static bool callbacksInterrupts;
 	//Data bytes
 	byte numberOfDataMalloced;
 	byte shield;
@@ -147,23 +175,43 @@ private:
 	byte **arguments;	
 	byte *argumentL;            
 	byte endFrame;
+	//Shields Counter 
+	static byte shieldsCounter;
+	//Requests Counter
+	static byte requestsCounter;
+	//Is constructor called
+	static bool isInit;
 	//Checker variable 
-	unsigned long lastTimeFrameSent;
-	//Number of connected Remote 1Sheelds
-	int remoteOneSheeldsCounter;
+	static unsigned long lastTimeFrameSent;
+	#ifdef REMOTE_SHIELD
 	//Array of remote 1Sheelds
 	RemoteOneSheeld * listOfRemoteOneSheelds[MAX_REMOTE_CONNECTIONS];
+	#endif
+	//Array of pointers to Parents
+	static ShieldParent * shieldsArray[SHIELDS_NO];
+	#ifdef INTERNET_SHIELD
+	//Array of pointers to un sent requests
+	static HttpRequest ** requestsArray;
+	#endif
 	//Send Incomming Data to shields
 	void sendToShields();
 	void begin(long baudRate);
 	void freeMemoryAllocated();
-	void processData();
+	void processFrame();
+	#ifdef REMOTE_SHIELD
 	//Remote OneSheeld fucntions
 	void processRemoteData();
-	void (*changeFloatCallBack)(char*,char*, float);
+	#endif
+	void (*changeFloatCallBack)(char [],char [], float);
 	void (*changeFloatCallBackWithString)(String ,String , float);
-	void (*changeStringCallBack)(char*,char*, char*);
+	void (*changeStringCallBack)(char [],char [], char []);
 	void (*changeStringCallBackWithString)(String ,String ,String );
+	void enteringACallback();
+	void exitingACallback();
+	bool isInACallback();
+	void processInput(int byte);
+friend class RemoteOneSheeld;
+friend class ShieldParent;
 };
 
 

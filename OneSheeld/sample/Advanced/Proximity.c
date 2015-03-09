@@ -13,6 +13,7 @@ sensor exceeds a certain limit.
 /* Include 1Sheeld library. */
 #include <OneSheeld.h>
 
+/* Forward Declarations */
 void OnValueChange(byte value);
 
 void setup()

@@ -12,13 +12,12 @@
   Date:          2014.5
 
 */
-
 #include "OneSheeld.h"
 #include "GravitySensorShield.h"
 
 
 //Class Constructor 
-GravitySensorShield::GravitySensorShield()
+GravitySensorShield::GravitySensorShield() : ShieldParent(GRAVITY_ID)
 {
 	valueX=0;
 	valueY=0;
@@ -42,25 +41,28 @@ float GravitySensorShield::getZ()
 {
 	return valueZ;
 }
+
 //Gravity Input Data Processing 
 void GravitySensorShield::processData()
 {
 	//Check Function-ID
-	byte functionId=OneSheeld.getFunctionId();
+	byte functionId=getOneSheeldInstance().getFunctionId();
 	
 		if(functionId==GRAVITY_VALUE)
 		{
 			//Process X-Axis Value
-			valueX=OneSheeld.convertBytesToFloat(OneSheeld.getArgumentData(0));
+			valueX=getOneSheeldInstance().convertBytesToFloat(getOneSheeldInstance().getArgumentData(0));
 			//Process Y-Axis Value
-			valueY=OneSheeld.convertBytesToFloat(OneSheeld.getArgumentData(1));
+			valueY=getOneSheeldInstance().convertBytesToFloat(getOneSheeldInstance().getArgumentData(1));
 			//Process Z-Axis Value
-			valueZ=OneSheeld.convertBytesToFloat(OneSheeld.getArgumentData(2));
+			valueZ=getOneSheeldInstance().convertBytesToFloat(getOneSheeldInstance().getArgumentData(2));
 
 			//User Function Invoked
-			if(isCallBackAssigned)
+			if(isCallBackAssigned && !isInACallback())
 			{
+				enteringACallback();
 				(*changeCallBack)(valueX,valueY,valueZ);
+				exitingACallback();
 			}
 		}
 }
@@ -72,5 +74,7 @@ void GravitySensorShield::setOnValueChange(void (*userFunction)(float valueX,flo
 	isCallBackAssigned=true;
 }
 
+#ifdef GRAVITY_SHIELD
 //Instantiating Object
 GravitySensorShield GravitySensor ;
+#endif

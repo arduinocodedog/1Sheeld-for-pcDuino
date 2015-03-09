@@ -12,15 +12,14 @@
   Date:          2014.5
 
 */
-
 #include "OneSheeld.h"
 #include "SMSShield.h"
 
 //Class Constructor
- SMSShieldClass::SMSShieldClass()
+ SMSShieldClass::SMSShieldClass() : ShieldParent(SMS_ID)
   {
-  	text=0;
-  	number=0;
+  	text=NULL;
+  	number=NULL;
   	isCallBackAssigned=false;
   	isItNewSms=false;
   	usedSetOnWithString=false;
@@ -28,7 +27,12 @@
 //SMS Sender
 void SMSShieldClass::send(const char* number,const char* text)
 {
-	OneSheeld.sendPacket(SMS_ID,0,SMS_SEND,2,new FunctionArg(strlen(number),(byte*)number),new FunctionArg(strlen(text),(byte*)text));
+	//Check length of string 
+	int numberLength = strlen(number); 
+	int textLength = strlen(text);
+	if(!numberLength || !textLength) return;
+	OneSheeld.sendPacket(SMS_ID,0,SMS_SEND,2,new FunctionArg(numberLength,(byte*)number),
+											 new FunctionArg(textLength,(byte*)text));
 }
 
 bool SMSShieldClass::isNewSms()
@@ -102,8 +106,8 @@ String SMSShieldClass::getSmsAsString()
 void SMSShieldClass::processData()
   {
   	//Checking Function-ID
-	byte x= OneSheeld.getFunctionId();
-	if(x==SMS_GET)
+	byte functionID= getOneSheeldInstance().getFunctionId();
+	if(functionID==SMS_GET)
 	{
 		isItNewSms =true;
 		if(text!=0)
@@ -114,35 +118,42 @@ void SMSShieldClass::processData()
 		{
 			free(number);
 		}
-		int numberlength=OneSheeld.getArgumentLength(0);
+		int numberlength=getOneSheeldInstance().getArgumentLength(0);
 		number=(char*)malloc(sizeof(char)*(numberlength+1));
 		for (int j=0; j<numberlength; j++)
 		{
-			number[j]=OneSheeld.getArgumentData(0)[j];
+			number[j]=getOneSheeldInstance().getArgumentData(0)[j];
 		}
 		number[numberlength]='\0';
-		int textlength=OneSheeld.getArgumentLength(1);
+		int textlength=getOneSheeldInstance().getArgumentLength(1);
 		text=(char*)malloc(sizeof(char)*(textlength+1));
 
 		for(int i=0 ;i<textlength;i++)
 		{
-			text[i]=OneSheeld.getArgumentData(1)[i];
+			text[i]=getOneSheeldInstance().getArgumentData(1)[i];
 		}
 			text[textlength]='\0';
 		//Users Function Invoked
-		if(isCallBackAssigned)
+		if(!isInACallback())
 		{
-			(*changeCallBack)(number,text);
-		}
+			if(isCallBackAssigned)
+			{
+				enteringACallback();
+				(*changeCallBack)(number,text);
+				exitingACallback();
+			}
 
-		if(usedSetOnWithString)
-		{
-			(*changeCallBackString)(getNumberAsString(),getSmsAsString());
+			if(usedSetOnWithString)
+			{
+				enteringACallback();
+				(*changeCallBackString)(getNumberAsString(),getSmsAsString());
+				exitingACallback();
+			}
 		}
 	}
 }
 //Users Function Setter
-void SMSShieldClass::setOnSmsReceive(void (*userFunction)(char * number ,char * text))
+void SMSShieldClass::setOnSmsReceive(void (*userFunction)(char number[] ,char text[]))
 {
 	changeCallBack=userFunction;
 	isCallBackAssigned=true;
@@ -154,6 +165,7 @@ void SMSShieldClass::setOnSmsReceive(void (*userFunction)(String number ,String 
 	usedSetOnWithString=true;
 }
 
-
+#ifdef SMS_SHIELD
 //Instantiating Object
 SMSShieldClass SMS;
+#endif

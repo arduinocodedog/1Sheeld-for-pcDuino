@@ -28,6 +28,8 @@ RemoteOneSheeld::RemoteOneSheeld(const char * address):remoteOneSheeldAddress(ad
 	isSubscribeAssigned=false;
 	usedSetOnFloatWithString=false;
 	usedSetOnStringWithString=false;
+	incommingFloatValue = 0;
+	remoteOneSheeldAddressLength = strlen(remoteOneSheeldAddress);
 }
 //Setting Pins mode
 void RemoteOneSheeld::pinMode(byte pinNumber, byte pinDirection)
@@ -36,8 +38,9 @@ void RemoteOneSheeld::pinMode(byte pinNumber, byte pinDirection)
 	
 	if((pinNumber>= 0||pinNumber <= 19) && (pinDirection == 0 || pinDirection == 1))
 	{
+		if(!remoteOneSheeldAddressLength) return;
 		OneSheeld.sendPacket(REMOTE_SHEELD_ID,0,REMOTEONESHEELD_PIN_MODE,3,
-						new FunctionArg(strlen(remoteOneSheeldAddress),(byte*)remoteOneSheeldAddress),
+						new FunctionArg(remoteOneSheeldAddressLength,(byte*)remoteOneSheeldAddress),
 						new FunctionArg(1,&pinNumber),
 						new FunctionArg(1,&pinDirection));
 	}
@@ -50,8 +53,9 @@ void RemoteOneSheeld::digitalWrite(byte pinNumber,byte pinValue)
 
 	if((pinNumber>= 0 && pinNumber <= 19) && (pinValue == 0 || pinValue == 1))
 	{
+		if(!remoteOneSheeldAddressLength) return;
 		OneSheeld.sendPacket(REMOTE_SHEELD_ID,0,REMOTEONESHEELD_WRITE,3,
-						new FunctionArg(strlen(remoteOneSheeldAddress),(byte*)remoteOneSheeldAddress),
+						new FunctionArg(remoteOneSheeldAddressLength,(byte*)remoteOneSheeldAddress),
 						new FunctionArg(1,&pinNumber),
 						new FunctionArg(1,&pinValue));
 	}
@@ -70,8 +74,9 @@ void RemoteOneSheeld::analogWrite(byte pinNumber,int pinValue)
 
 	if((pinNumber==5||pinNumber==6||pinNumber==9||pinNumber==10||pinNumber==11)||(pinNumber>=14 && pinNumber<=19))
 	{
+		if(!remoteOneSheeldAddressLength) return;
 		OneSheeld.sendPacket(REMOTE_SHEELD_ID,0,REMOTEONESHEELD_ANALOG_WRITE,3,
-						new FunctionArg(strlen(remoteOneSheeldAddress),(byte*)remoteOneSheeldAddress),
+						new FunctionArg(remoteOneSheeldAddressLength,(byte*)remoteOneSheeldAddress),
 						new FunctionArg(1,&pinNumber),
 						new FunctionArg(1,&tempValue));
 	}
@@ -79,18 +84,22 @@ void RemoteOneSheeld::analogWrite(byte pinNumber,int pinValue)
 //Getting digital/analog pin status 
 void RemoteOneSheeld::digitalRead(byte pinNumber)
 {
+	if(!remoteOneSheeldAddressLength) return;
 	OneSheeld.sendPacket(REMOTE_SHEELD_ID,0,REMOTEONESHEELD_READ,2,
-						new FunctionArg(strlen(remoteOneSheeldAddress),(byte*)remoteOneSheeldAddress),
+						new FunctionArg(remoteOneSheeldAddressLength,(byte*)remoteOneSheeldAddress),
 						new FunctionArg(1,&pinNumber));
 
 }
 //Sending message remotely 
 void RemoteOneSheeld::sendMessage(const char * key , float value)
 {
+	//Check length of string
+	int keyLength = strlen(key);
+	if(!keyLength) return;
 	OneSheeld.sendPacket(REMOTE_SHEELD_ID,0,REMOTEONESHEELD_SEND_FLOAT,3,
 						new FunctionArg(strlen(remoteOneSheeldAddress),(byte*)remoteOneSheeldAddress),
-						new FunctionArg(strlen(key),(byte*)key),
-						new FunctionArg(sizeof(float),(byte*)OneSheeld.convertFloatToBytes(value)));
+						new FunctionArg(keyLength,(byte*)key),
+						new FunctionArg(4,(byte*)OneSheeld.convertFloatToBytes(value)));
 }
 //Supporting Strings for arduino
 #if !defined(ARDUINO_LINUX) 
@@ -152,13 +161,20 @@ void RemoteOneSheeld::sendMessage(String key , String stringData)
 //Sending message remotely 
 void RemoteOneSheeld::sendMessage(const char * key , const char * stringData)
 {
+	//Check length of string
+	int keyLength = strlen(key);
+	if(!keyLength) return;
+	//Check length of string
+	int stringDataLength = strlen(stringData);
+	if(!stringDataLength) return;
+	if(!remoteOneSheeldAddressLength) return;
 	OneSheeld.sendPacket(REMOTE_SHEELD_ID,0,REMOTEONESHEELD_SEND_STRING,3,
-						new FunctionArg(strlen(remoteOneSheeldAddress),(byte*)remoteOneSheeldAddress),
-						new FunctionArg(strlen(key),(byte*)key),
-						new FunctionArg(strlen(stringData),(byte*)stringData));
+						new FunctionArg(remoteOneSheeldAddressLength,(byte*)remoteOneSheeldAddress),
+						new FunctionArg(keyLength,(byte*)key),
+						new FunctionArg(stringDataLength,(byte*)stringData));
 }
 //Getting Data from remote 1Sheeld
-void RemoteOneSheeld::setOnNewMessage(void (*userFunction)(char* key, float value))
+void RemoteOneSheeld::setOnNewMessage(void (*userFunction)(char key [], float value))
 {
 	changeFloatCallBack=userFunction;
 	isFloatMessageAssigned = true;
@@ -170,7 +186,7 @@ void RemoteOneSheeld::setOnNewMessage(void (*userFunction)(String key, float val
 	usedSetOnFloatWithString= true;
 }
 //Getting Data from remote 1Sheeld
-void RemoteOneSheeld::setOnNewMessage(void (*userFunction)(char* key, char* stringData))
+void RemoteOneSheeld::setOnNewMessage(void (*userFunction)(char key[], char stringData[]))
 {
 	changeStringCallBack=userFunction;
 	isStringMessageAssigned = true;
@@ -192,8 +208,9 @@ void RemoteOneSheeld::subscribeToChanges(byte pin0)
 {
 	pin0 = checkAnalogPinNumbers(pin0);
 
+	if(!remoteOneSheeldAddressLength) return;
 	OneSheeld.sendPacket(REMOTE_SHEELD_ID,0,REMOTEONESHEELD_SUBSCRIBE,2,
-						 new FunctionArg(strlen(remoteOneSheeldAddress),(byte*)remoteOneSheeldAddress),
+						 new FunctionArg(remoteOneSheeldAddressLength,(byte*)remoteOneSheeldAddress),
 						 new FunctionArg(1,&pin0));
 }
 
@@ -203,8 +220,9 @@ void RemoteOneSheeld::subscribeToChanges(byte pin0 ,byte pin1)
 	pin0 = checkAnalogPinNumbers(pin0);
 	pin1 = checkAnalogPinNumbers(pin1);
 
+	if(!remoteOneSheeldAddressLength) return;
 	OneSheeld.sendPacket(REMOTE_SHEELD_ID,0,REMOTEONESHEELD_SUBSCRIBE,3,
-						 new FunctionArg(strlen(remoteOneSheeldAddress),(byte*)remoteOneSheeldAddress),
+						 new FunctionArg(remoteOneSheeldAddressLength,(byte*)remoteOneSheeldAddress),
 						 new FunctionArg(1,&pin0),
 						 new FunctionArg(1,&pin1));
 }
@@ -216,8 +234,9 @@ void RemoteOneSheeld::subscribeToChanges(byte pin0 ,byte pin1,byte pin2)
 	pin1 = checkAnalogPinNumbers(pin1);
 	pin2 = checkAnalogPinNumbers(pin2);
 
+	if(!remoteOneSheeldAddressLength) return;
 	OneSheeld.sendPacket(REMOTE_SHEELD_ID,0,REMOTEONESHEELD_SUBSCRIBE,4,
-						 new FunctionArg(strlen(remoteOneSheeldAddress),(byte*)remoteOneSheeldAddress),
+						 new FunctionArg(remoteOneSheeldAddressLength,(byte*)remoteOneSheeldAddress),
 						 new FunctionArg(1,&pin0),
 						 new FunctionArg(1,&pin1),
 						 new FunctionArg(1,&pin2));
@@ -231,8 +250,9 @@ void RemoteOneSheeld::subscribeToChanges(byte pin0 ,byte pin1,byte pin2,byte pin
 	pin2 = checkAnalogPinNumbers(pin2);
 	pin3 = checkAnalogPinNumbers(pin3);
 
+	if(!remoteOneSheeldAddressLength) return;
 	OneSheeld.sendPacket(REMOTE_SHEELD_ID,0,REMOTEONESHEELD_SUBSCRIBE,5,
-						 new FunctionArg(strlen(remoteOneSheeldAddress),(byte*)remoteOneSheeldAddress),
+						 new FunctionArg(remoteOneSheeldAddressLength,(byte*)remoteOneSheeldAddress),
 						 new FunctionArg(1,&pin0),
 						 new FunctionArg(1,&pin1),
 						 new FunctionArg(1,&pin2),
@@ -248,8 +268,9 @@ void RemoteOneSheeld::subscribeToChanges(byte pin0 ,byte pin1,byte pin2,byte pin
 	pin3 = checkAnalogPinNumbers(pin3);
 	pin4 = checkAnalogPinNumbers(pin4);
 
+	if(!remoteOneSheeldAddressLength) return;
 	OneSheeld.sendPacket(REMOTE_SHEELD_ID,0,REMOTEONESHEELD_SUBSCRIBE,6,
-						 new FunctionArg(strlen(remoteOneSheeldAddress),(byte*)remoteOneSheeldAddress),
+						 new FunctionArg(remoteOneSheeldAddressLength,(byte*)remoteOneSheeldAddress),
 						 new FunctionArg(1,&pin0),
 						 new FunctionArg(1,&pin1),
 						 new FunctionArg(1,&pin2),
@@ -262,8 +283,9 @@ void RemoteOneSheeld::unSubscribeToChanges(byte pin0)
 {
 	pin0 = checkAnalogPinNumbers(pin0);
 
+	if(!remoteOneSheeldAddressLength) return;
 	OneSheeld.sendPacket(REMOTE_SHEELD_ID,0,REMOTEONESHEELD_UNSUBSCRIBE,2,
-						 new FunctionArg(strlen(remoteOneSheeldAddress),(byte*)remoteOneSheeldAddress),
+						 new FunctionArg(remoteOneSheeldAddressLength,(byte*)remoteOneSheeldAddress),
 						 new FunctionArg(1,&pin0));
 }
 
@@ -273,8 +295,9 @@ void RemoteOneSheeld::unSubscribeToChanges(byte pin0 ,byte pin1)
 	pin0 = checkAnalogPinNumbers(pin0);
 	pin1 = checkAnalogPinNumbers(pin1);
 	
+	if(!remoteOneSheeldAddressLength) return;
 	OneSheeld.sendPacket(REMOTE_SHEELD_ID,0,REMOTEONESHEELD_UNSUBSCRIBE,3,
-						 new FunctionArg(strlen(remoteOneSheeldAddress),(byte*)remoteOneSheeldAddress),
+						 new FunctionArg(remoteOneSheeldAddressLength,(byte*)remoteOneSheeldAddress),
 						 new FunctionArg(1,&pin0),
 						 new FunctionArg(1,&pin1));
 }
@@ -286,8 +309,9 @@ void RemoteOneSheeld::unSubscribeToChanges(byte pin0 ,byte pin1,byte pin2)
 	pin1 = checkAnalogPinNumbers(pin1);
 	pin2 = checkAnalogPinNumbers(pin2);
 
+	if(!remoteOneSheeldAddressLength) return;
 	OneSheeld.sendPacket(REMOTE_SHEELD_ID,0,REMOTEONESHEELD_UNSUBSCRIBE,4,
-						 new FunctionArg(strlen(remoteOneSheeldAddress),(byte*)remoteOneSheeldAddress),
+						 new FunctionArg(remoteOneSheeldAddressLength,(byte*)remoteOneSheeldAddress),
 						 new FunctionArg(1,&pin0),
 						 new FunctionArg(1,&pin1),
 						 new FunctionArg(1,&pin2));
@@ -301,8 +325,9 @@ void RemoteOneSheeld::unSubscribeToChanges(byte pin0 ,byte pin1,byte pin2,byte p
 	pin2 = checkAnalogPinNumbers(pin2);
 	pin3 = checkAnalogPinNumbers(pin3);
 
+	if(!remoteOneSheeldAddressLength) return;
 	OneSheeld.sendPacket(REMOTE_SHEELD_ID,0,REMOTEONESHEELD_UNSUBSCRIBE,5,
-						 new FunctionArg(strlen(remoteOneSheeldAddress),(byte*)remoteOneSheeldAddress),
+						 new FunctionArg(remoteOneSheeldAddressLength,(byte*)remoteOneSheeldAddress),
 						 new FunctionArg(1,&pin0),
 						 new FunctionArg(1,&pin1),
 						 new FunctionArg(1,&pin2),
@@ -318,8 +343,9 @@ void RemoteOneSheeld::unSubscribeToChanges(byte pin0 ,byte pin1,byte pin2,byte p
 	pin3 = checkAnalogPinNumbers(pin3);
 	pin4 = checkAnalogPinNumbers(pin4);
 
+	if(!remoteOneSheeldAddressLength) return;
 	OneSheeld.sendPacket(REMOTE_SHEELD_ID,0,REMOTEONESHEELD_UNSUBSCRIBE,6,
-						 new FunctionArg(strlen(remoteOneSheeldAddress),(byte*)remoteOneSheeldAddress),
+						 new FunctionArg(remoteOneSheeldAddressLength,(byte*)remoteOneSheeldAddress),
 						 new FunctionArg(1,&pin0),
 						 new FunctionArg(1,&pin1),
 						 new FunctionArg(1,&pin2),
@@ -327,19 +353,22 @@ void RemoteOneSheeld::unSubscribeToChanges(byte pin0 ,byte pin1,byte pin2,byte p
 						 new FunctionArg(1,&pin4));
 }
 //Process Input data from remote 1Sheeld
-void RemoteOneSheeld::processData()
+void RemoteOneSheeld::processFrame()
 {
+	if(!(isSubscribeAssigned || isFloatMessageAssigned || usedSetOnFloatWithString || usedSetOnStringWithString || isStringMessageAssigned) || OneSheeld.isInACallback())
+		return;
+
 	if(memcmp (remoteOneSheeldAddress,OneSheeld.getArgumentData(0),36))return;
 
 	byte functionId = OneSheeld.getFunctionId();
 
-	if(functionId == DIGITAL_SUBSCRIBE_VALUE)
+	OneSheeld.enteringACallback();
+	if(functionId == DIGITAL_SUBSCRIBE_VALUE && isSubscribeAssigned)
 	{
 		int argumentNo = OneSheeld.getArgumentNo();
 		byte pinData;
 		byte pinNo;
 		bool pinValue;
-
 		for (int i=1 ; i <argumentNo;i++)
 		{
 			pinData = OneSheeld.getArgumentData(i)[0];
@@ -392,9 +421,8 @@ void RemoteOneSheeld::processData()
     	{
     		(*changeStringCallBack)(stringKey,incommingStringData);	
     	}
-		
-
 	}
+	OneSheeld.exitingACallback();
 }
 //Check analog pins low level number 
 byte RemoteOneSheeld::checkAnalogPinNumbers(byte pinNumber)

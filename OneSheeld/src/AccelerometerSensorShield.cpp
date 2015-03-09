@@ -12,14 +12,13 @@
   Date:          2014.5
 
 */
-
 #include "OneSheeld.h"
 #include "AccelerometerSensorShield.h"
 
 
 
 //Class Constructor
-AccelerometerSensorShield::AccelerometerSensorShield()			 
+AccelerometerSensorShield::AccelerometerSensorShield(): ShieldParent(ACCELEROMETER_ID)			 
 {
 	valueX=0;
 	valueY=0;
@@ -54,16 +53,18 @@ void AccelerometerSensorShield::processData()
 		if(functionId==ACCELEROMETER_VALUE)
 		{
 			//Process X-Axis Value
-			valueX=OneSheeld.convertBytesToFloat(OneSheeld.getArgumentData(0));
+			valueX=OneSheeld.convertBytesToFloat(getOneSheeldInstance().getArgumentData(0));
 			//Process Y-Axis Value
-			valueY=OneSheeld.convertBytesToFloat(OneSheeld.getArgumentData(1));
+			valueY=OneSheeld.convertBytesToFloat(getOneSheeldInstance().getArgumentData(1));
 			//Process Z-Axis Value
-			valueZ=OneSheeld.convertBytesToFloat(OneSheeld.getArgumentData(2));
+			valueZ=OneSheeld.convertBytesToFloat(getOneSheeldInstance().getArgumentData(2));
 			
 			//User Function Invoked
-			if(isCallBackAssigned)
+			if(isCallBackAssigned && !isInACallback())
 			{
+				enteringACallback();
 				(*changeCallBack)(valueX,valueY,valueZ);
+				exitingACallback();
 			}
 		}	
 }
@@ -75,5 +76,7 @@ void AccelerometerSensorShield::setOnValueChange(void (* usersFunction)(float va
 	isCallBackAssigned=true;
 }
 
+#ifdef ACCELEROMETER_SHIELD
 //Instatntiating Object
 AccelerometerSensorShield AccelerometerSensor;					
+#endif

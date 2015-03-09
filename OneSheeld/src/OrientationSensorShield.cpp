@@ -12,13 +12,12 @@
   Date:          2014.5
 
 */
-
 #include "OneSheeld.h"
 #include "OrientationSensorShield.h"
 
 
 //Class Constructor
-OrientationSensorShield::OrientationSensorShield()
+OrientationSensorShield::OrientationSensorShield() : ShieldParent(ORIENTATION_ID)
 {
 	valueX=0;
 	valueY=0;
@@ -41,24 +40,27 @@ float OrientationSensorShield::getZ()
 {
 	return valueZ;
 }
+
 //AccelerometerSensor Data processing 
 void OrientationSensorShield::processData()
 {
 	//Check Function-ID
-	byte functionId=OneSheeld.getFunctionId();
+	byte functionId=getOneSheeldInstance().getFunctionId();
 	
 		if(functionId==ORIENTATION_VALUE)
 		{
 			//Process X-Axis Value
-			valueX=OneSheeld.convertBytesToFloat(OneSheeld.getArgumentData(0));
+			valueX=getOneSheeldInstance().convertBytesToFloat(getOneSheeldInstance().getArgumentData(0));
 			//Process Y-Axis Value
-			valueY=OneSheeld.convertBytesToFloat(OneSheeld.getArgumentData(1));
+			valueY=getOneSheeldInstance().convertBytesToFloat(getOneSheeldInstance().getArgumentData(1));
 			//Process Z-Axis Value
-			valueZ=OneSheeld.convertBytesToFloat(OneSheeld.getArgumentData(2));
+			valueZ=getOneSheeldInstance().convertBytesToFloat(getOneSheeldInstance().getArgumentData(2));
 			//User Function Invoked
-			if(isCallBackAssigned)
+			if(isCallBackAssigned && !isInACallback())
 			{
+				enteringACallback();
 				(*changeCallBack)(valueX,valueY,valueZ);
+				exitingACallback();
 			}
 		}
 }
@@ -70,5 +72,7 @@ void OrientationSensorShield::setOnValueChange(void (*userFunction)(float valueX
 	isCallBackAssigned=true;
 }
 
+#ifdef ORIENTATION_SHIELD
 //Instatntiating Object
 OrientationSensorShield OrientationSensor;
+#endif

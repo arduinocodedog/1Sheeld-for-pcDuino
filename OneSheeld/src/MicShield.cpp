@@ -12,13 +12,12 @@
   Date:          2014.5
 
 */
-
 #include "OneSheeld.h"
 #include "MicShield.h"
 
 
 //Class Constructor
-MicShield::MicShield()
+MicShield::MicShield():ShieldParent(MIC_ID)
 {
 	value=0x00;
 	isCallBackAssigned=false;
@@ -28,19 +27,24 @@ byte MicShield::getValue()
 {
 	return value;
 }
+
 //Mic Input Data processing 	
 void MicShield::processData()
 {
 	//Checking Function-ID
-	byte functionId =OneSheeld.getFunctionId();
+	byte functionId =getOneSheeldInstance().getFunctionId();
 	if(functionId==MIC_VALUE)
 	{
 		value=0;
-		value=OneSheeld.getArgumentData(0)[0];
+		value=getOneSheeldInstance().getArgumentData(0)[0];
 
 		//Users Function Invoked
-		if(isCallBackAssigned)
+		if(isCallBackAssigned && !isInACallback())
+		{
+			enteringACallback();
 			(*changeCallBack)(value);
+			exitingACallback();
+		}
 	}
 }
 
@@ -51,5 +55,7 @@ void MicShield::setOnValueChange(void (*userFunction)(byte micValue))
 	isCallBackAssigned=true;
 }
 
+#ifdef MIC_SHIELD
 //Instatntiating Object
 MicShield Mic;
+#endif

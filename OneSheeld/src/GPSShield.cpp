@@ -12,12 +12,11 @@
   Date:          2014.5
 
 */
-
 #include "OneSheeld.h"
 #include "GPSShield.h"
 
 //Class Constructor 
-GPSShieldClass::GPSShieldClass ()
+GPSShieldClass::GPSShieldClass () : ShieldParent(GPS_ID)
 {
 	LatValue=0;
 	LonValue=0;
@@ -29,29 +28,22 @@ GPSShieldClass::GPSShieldClass ()
 void GPSShieldClass::processData ()
 {
 	//Checking Function-ID
-	byte functionId=OneSheeld.getFunctionId();
+	byte functionId=getOneSheeldInstance().getFunctionId();
 	if(functionId==GPS_VALUE)
 	{
-		//Process Lattitude Value
-		getfloat.data[0]=OneSheeld.getArgumentData(0)[0];
-		getfloat.data[1]=OneSheeld.getArgumentData(0)[1];
-		getfloat.data[2]=OneSheeld.getArgumentData(0)[2];
-		getfloat.data[3]=OneSheeld.getArgumentData(0)[3];
-		LatValue=getfloat.num;
 
-		//Process Longitude Value
-		getfloat.data[0]=OneSheeld.getArgumentData(1)[0];
-		getfloat.data[1]=OneSheeld.getArgumentData(1)[1];
-		getfloat.data[2]=OneSheeld.getArgumentData(1)[2];
-		getfloat.data[3]=OneSheeld.getArgumentData(1)[3];
-		LonValue=getfloat.num;
+		LatValue=getOneSheeldInstance().convertBytesToFloat(getOneSheeldInstance().getArgumentData(0));
+
+		LonValue=getOneSheeldInstance().convertBytesToFloat(getOneSheeldInstance().getArgumentData(1));
 
 		isInit=true;  									//setting a flag 
 	}
 	//Users Function Invoked
-	if (isCallBackAssigned)
+	if (isCallBackAssigned && !isInACallback())
 	{
+		enteringACallback();
 		(*changeCallBack)(LatValue,LonValue);
+		exitingACallback();
 	}
 }
 
@@ -91,7 +83,7 @@ float GPSShieldClass::getDistance(float x , float y)			//x and y is the lattitud
 
 	float chordProcess    = sin(dLat/2)*sin(dLat/2)+sin(dLon/2)*sin(dLon/2)*cos(radian(LatValue))*cos(radian(x));
 	float angularDistance = 2*atan2(sqrt(chordProcess),sqrt(1-chordProcess));
-	float actualDsitance  = (RADUIS_OF_EARTH*angularDistance)*1000;			//getting the actuall distance in meters
+	float actualDsitance  = (RADIUS_OF_EARTH*angularDistance)*1000;			//getting the actuall distance in meters
 
 	return actualDsitance;											
 }
@@ -110,5 +102,7 @@ void GPSShieldClass::setOnValueChange(void (*userFunction)(float lattitude ,floa
 	isCallBackAssigned=true;
 }
 
+#ifdef GPS_SHIELD
 //Instantiating Object
 GPSShieldClass  GPS ;
+#endif
