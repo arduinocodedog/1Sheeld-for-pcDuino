@@ -16,6 +16,11 @@
 #ifndef OneSheeld_h
 #define OneSheeld_h
 
+#ifdef PCDUINO_IDE
+#define PCDUINO
+#define ARDUINO_LINUX
+#endif
+
 #ifdef PCDUINO
 typedef unsigned char byte;
 #endif
@@ -71,11 +76,26 @@ class FunctionArg
 private:
 	byte length;
 	byte * data;
+	bool saveData;
 public:
-	FunctionArg(int l ,byte * d)
+#ifdef PCDUINO
+	FunctionArg(int l ,byte * d, bool _saveData = false)
+#else
+	FunctionArg(int l ,byte * d):FunctionArg(l,d,false){}
+	FunctionArg(int l ,byte * d, bool _saveData)
+#endif
 	{
+		saveData=_saveData;
 		length=(l>0xff)?0xff:l;
-		data=d;
+		if(saveData)
+		{
+			data=(byte *)malloc(sizeof(byte)*length);
+			memcpy(data,d,length);
+		}
+		else
+		{
+			data=d;
+		}
 	}
 	byte getLength()
 	{
@@ -84,6 +104,10 @@ public:
 	byte * getData()
 	{
 		return data;
+	}
+	~FunctionArg()
+	{
+		if(saveData)free(data);
 	}
 
 };
