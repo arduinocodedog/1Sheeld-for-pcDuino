@@ -78,12 +78,7 @@ private:
 	byte * data;
 	bool saveData;
 public:
-#ifdef PCDUINO
 	FunctionArg(int l ,byte * d, bool _saveData = false)
-#else
-	FunctionArg(int l ,byte * d):FunctionArg(l,d,false){}
-	FunctionArg(int l ,byte * d, bool _saveData)
-#endif
 	{
 		saveData=_saveData;
 		length=(l>0xff)?0xff:l;
