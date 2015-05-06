@@ -7,7 +7,16 @@ This example shows an application on 1Sheeld's Facebook shield.
 By using this example, you can update your Facebook status
 everyday at 8 am.
 
+OPTIONAL:
+To reduce the library compiled size and limit its memory usage, you
+can specify which shields you want to include in your sketch by
+defining CUSTOM_SETTINGS and the shields respective INCLUDE_ define. 
+
 */
+
+#define CUSTOM_SETTINGS
+#define INCLUDE_FACEBOOK_SHIELD
+#define INCLUDE_CLOCK_SHIELD
 
 
 /* Include 1Sheeld library. */
@@ -28,7 +37,7 @@ void setup()
   /* Start communication. */
   OneSheeld.begin();
   /* Start clock shield. */
-  Clock.begin();
+  Clock.queryDateAndTime();
   /* Set up the LCD's columns and rows. */ 
   lcd.begin(16, 2);
   /*Set lcd contrast pin as output. */ 

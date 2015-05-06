@@ -19,27 +19,26 @@ INCS = -I.\
 LIBS=../bin/OneSheeld.a ../../libarduino.a 
 TARGET=./bin
 
-OBJS = Simple/Accelerometer Simple/Buzzer Simple/Camera Simple/DataLogger
+OBJS = Simple/Accelerometer Simple/Buzzer Simple/Camera Simple/Color Simple/DataLogger
 OBJS += Simple/Facebook Simple/Foursquare Simple/GamePad Simple/Gravity
 OBJS += Simple/Gyroscope Simple/Internet Simple/Keyboard Simple/Keypad Simple/Led 
 OBJS += Simple/Light Simple/Magnetometer Simple/Mic Simple/MusicPlayer 
-OBJS += Simple/Notification Simple/Orientation Simple/Pattern
+OBJS += Simple/NFC Simple/Notification Simple/Orientation Simple/Pattern
 OBJS += Simple/Phone Simple/Proximity Simple/PushButton Simple/Slider
 OBJS += Simple/Temperature Simple/Terminal Simple/Twitter Simple/VoiceRecognition
-OBJS += Advanced/Accelerometer Advanced/Buzzer Advanced/Camera Advanced/Clock
+OBJS += Advanced/Accelerometer Advanced/Buzzer Advanced/Camera Advanced/Clock Advanced/Color
 OBJS += Advanced/Email Advanced/Facebook Advanced/Foursquare Advanced/GamePad
 OBJS += Advanced/GPS Advanced/Gravity Advanced/Internet Advanced/Keypad Advanced/LCD Advanced/Light
-OBJS += Advanced/Magnetometer Advanced/Mic Advanced/MusicPlayer Advanced/Notification
+OBJS += Advanced/Magnetometer Advanced/Mic Advanced/MusicPlayer Advanced/NFC Advanced/Notification
 OBJS += Advanced/Orientation Advanced/Phone Advanced/Pressure Advanced/Proximity 
-OBJS += Advanced/RemoteOneSheeld1 Advanced/RemoteOneSheeld2
 OBJS += Advanced/SevenSegment Advanced/Skype Advanced/SMS Advanced/TextToSpeech
-OBJS += Advanced/ToggleButton Advanced/VoiceRecognition
+OBJS += Advanced/ToggleButton Advanced/Twitter Advanced/VoiceRecognition
 
 all: 
 	@mkdir -p $(TARGET)
 	@mkdir -p $(TARGET)/Simple
 	@mkdir -p $(TARGET)/Advanced
-	@for i in $(OBJS); do echo "$(CXX) $(INCS) $$i.c -DPCDUINO=1 -Wno-write-strings -o $(TARGET)/$$i $(LIBS)" && $(CXX) $(INCS) $$i.c -DPCDUINO=1 -Wno-write-strings -o $(TARGET)/$$i $(LIBS); done
+	@for i in $(OBJS); do echo "$(CXX) $(INCS) $$i.c -DPCDUINO=1 -DINCLUDE_INTERNET_SHIELD=1 -Wno-write-strings -o $(TARGET)/$$i $(LIBS)" && $(CXX) $(INCS) $$i.c -DPCDUINO=1 -DINCLUDE_INTERNET_SHIELD -Wno-write-strings -o $(TARGET)/$$i $(LIBS); done
 
 clean:
 	@for i in $(OBJS); do rm -f $(TARGET)/$$i; done

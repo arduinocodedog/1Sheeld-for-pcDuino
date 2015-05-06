@@ -1,13 +1,24 @@
 /*
 
- Internet Shield Example
+Internet Shield Example
+
+This example shows an application on 1Sheeld's internet shield.
+
+By using this example, you can get response of certain GET request and 
+print it all out on the terminal shield 64 bytes by 64 bytes.
  
- This example shows an application on 1Sheeld's internet shield.
- 
- By using this example, you can get response of certain GET request and 
- print it all out on the terminal shield 64 bytes by 64 bytes.
- 
+OPTIONAL:
+To reduce the library compiled size and limit its memory usage, you
+can specify which shields you want to include in your sketch by
+defining CUSTOM_SETTINGS and the shields respective INCLUDE_ define. 
+
 */
+
+#define CUSTOM_SETTINGS
+#ifndef INCLUDE_INTERNET_SHIELD
+#define INCLUDE_INTERNET_SHIELD
+#endif
+#define INCLUDE_TERMINAL_SHIELD
 
 /* Include 1Sheeld library. */
 #include <OneSheeld.h>

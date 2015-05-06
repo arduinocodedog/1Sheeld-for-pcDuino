@@ -27,6 +27,7 @@ SRCS = \
 	src/BuzzerShield.cpp \
 	src/CameraShield.cpp \
 	src/ClockShield.cpp \
+	src/ColorShield.cpp \
 	src/DataLoggerShield.cpp \
 	src/EmailShield.cpp \
 	src/FacebookShield.cpp \
@@ -48,6 +49,9 @@ SRCS = \
 	src/MagnetometerSensorShield.cpp \
 	src/MicShield.cpp \
 	src/MusicPlayerShield.cpp \
+	src/NFCRecord.cpp \
+	src/NFCShield.cpp \
+	src/NFCTag.cpp \
 	src/NotificationShield.cpp \
 	src/OneSheeld.cpp \
 	src/OneSheeldPrint.cpp \
@@ -58,7 +62,6 @@ SRCS = \
 	src/PressureSensorShield.cpp \
 	src/ProximitySensorShield.cpp \
 	src/PushButtonShield.cpp \
-	src/RemoteOneSheeld.cpp \
 	src/SevenSegmentShield.cpp \
 	src/ShieldParent.cpp \
 	src/SkypeShield.cpp \

@@ -19,6 +19,7 @@
 #define LED_ID 		 	 	 0x02
 #define PUSH_BUTTON_ID 	 	 0x03
 #define TOGGLE_BUTTON_ID 	 0x04
+#define COLOR_ID			 0x05
 #define NOTIFICATION_ID 	 0x06
 #define SEV_SEG_ID 			 0x07
 #define BUZZER_ID 		 	 0x08
@@ -35,6 +36,7 @@
 #define PROXIMITY_ID	 	 0x13
 #define GRAVITY_ID 			 0x14
 #define CAMERA_ID 		 	 0x15
+#define NFC_ID				 0x16
 #define LCD_ID 		   	 	 0x17
 #define MIC_ID 				 0x18
 #define FACEBOOK_ID     	 0x19
@@ -52,5 +54,4 @@
 #define DATA_LOGGER_ID	  	 0x25
 #define TERMINAL_ID			 0x26
 #define PATTERN_ID			 0x27
-#define REMOTE_SHEELD_ID	 0x28
 #define INTERNET_ID	 		 0x29

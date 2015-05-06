@@ -12,6 +12,7 @@
   Date:          2014.5
 
 */
+#define FROM_ONESHEELD_LIBRARY
 #include "OneSheeld.h"
 #include "PhoneShield.h"
 
@@ -32,18 +33,6 @@ void PhoneShieldClass::call(const char* phone)
 	OneSheeld.sendPacket(PHONE_ID,0,PHONE_CALL,1,new FunctionArg(phoneLength,(byte *)phone));
 }
 
-//Support string for Arduino
-#if !defined(ARDUINO_LINUX)
-void PhoneShieldClass::call(String phone)
-{
-	const char * cTypePhone = phone.c_str();
-
-	call(cTypePhone);
-}
-#endif
-
-//Support string for galileo
-#if defined(ARDUINO_LINUX)
 void PhoneShieldClass::call(String phone)
 {
 	int phoneLength = phone.length();
@@ -58,7 +47,7 @@ void PhoneShieldClass::call(String phone)
 
 	call(cTypePhone);
 }
-#endif
+
 //Ringing Checker 
 bool PhoneShieldClass::isRinging()
 {
@@ -137,7 +126,3 @@ void PhoneShieldClass::setOnCallStatusChange(void (*userFunction)(bool isRinging
 	usedSetOnString=true;
 }
 
-#ifdef PHONE_SHIELD
-//Instatntiating Object
-PhoneShieldClass Phone;
-#endif

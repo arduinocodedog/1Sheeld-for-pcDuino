@@ -12,6 +12,7 @@
   Date:          2014.5
 
 */
+#define FROM_ONESHEELD_LIBRARY
 #include "OneSheeld.h"
 #include "FoursquareShield.h"
 
@@ -27,19 +28,6 @@ void FoursquareShieldClass::checkIn(const char* placeId,const char* message)
 															   new FunctionArg(messageLength,(byte*)message));
 }
 
-//Support string for Arduino
-#if !defined(ARDUINO_LINUX)
-void FoursquareShieldClass::checkIn(String placeId , String message)
-{
-	const char * cTypePlaceId = placeId.c_str();
-	const char * cTypeMessage = message.c_str();
-
-	checkIn(cTypePlaceId,cTypeMessage);
-}
-#endif
-
-//Support string for galielo
-#if defined(ARDUINO_LINUX)
 void FoursquareShieldClass::checkIn(String placeId , String message)
 {
 	int placeIdLength = placeId.length();
@@ -62,9 +50,4 @@ void FoursquareShieldClass::checkIn(String placeId , String message)
 
 	checkIn(cTypePlaceId,cTypeMessage);
 }
-#endif
 
-#ifdef FOURSQUARE_SHIELD
-//Instantiating Object
-FoursquareShieldClass Foursquare;
-#endif

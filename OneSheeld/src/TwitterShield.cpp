@@ -12,6 +12,7 @@
   Date:          2014.5
 
 */
+#define FROM_ONESHEELD_LIBRARY
 #include "OneSheeld.h"
 #include "TwitterShield.h"
 
@@ -32,18 +33,7 @@ void TwitterShieldClass::tweet(const char *data)
 	if(!dataLength) return;
 	OneSheeld.sendPacket(TWITTER_ID,0,TWITTER_SEND,1,new FunctionArg(dataLength,(byte*)data));
 }
-//Support string for Arduino
-#if !defined(ARDUINO_LINUX)
-void TwitterShieldClass::tweet(String data)
-{
-	const char * cTypeData = data.c_str();
 
-	tweet(cTypeData);
-}
-#endif
-
-//Support string for galileo
-#if defined(ARDUINO_LINUX)
 void TwitterShieldClass::tweet(String data)
 {
 	int dataLength = data.length();
@@ -58,7 +48,6 @@ void TwitterShieldClass::tweet(String data)
 
 	tweet(cTypeData);
 }
-#endif 
 
 //Message Sender
 void TwitterShieldClass::sendMessage(const char* username,const char* message)
@@ -72,19 +61,6 @@ void TwitterShieldClass::sendMessage(const char* username,const char* message)
 
 }
 
-//Support string for Arduino
-#if !defined(ARDUINO_LINUX)
-void TwitterShieldClass::sendMessage(String username, String message)
-{
-	const char * cTypeUsername = username.c_str();
-	const char * cTypeMessage = message.c_str();
-
-	sendMessage(cTypeUsername,cTypeMessage);
-}
-#endif
-
-//Support string for galileo
-#if defined(ARDUINO_LINUX)
 void TwitterShieldClass::sendMessage(String username , String message)
 {
 	int usernameLength = username.length();
@@ -107,7 +83,6 @@ void TwitterShieldClass::sendMessage(String username , String message)
 
 	sendMessage(cTypeUsername,cTypeMessage);
 }
-#endif
 
 void TwitterShieldClass::tweetLastPicture(const char * pictureText , byte imageSource)
 {
@@ -118,18 +93,6 @@ void TwitterShieldClass::tweetLastPicture(const char * pictureText , byte imageS
 															  new FunctionArg(1,(byte *)&imageSource));
 }
 
-//Support string for Arduino
-#if !defined(ARDUINO_LINUX)
-void TwitterShieldClass::tweetLastPicture(String pictureText , byte imageSource)
-{
-	const char * cTypePictureText = pictureText.c_str();
-
-	tweetLastPicture(cTypePictureText,imageSource);
-}
-#endif
-
-//Support string for galileo
-#if defined(ARDUINO_LINUX)
 void TwitterShieldClass::tweetLastPicture(String pictureText ,byte imageSource)
 {
 	int pictureTextLength = pictureText.length();
@@ -144,7 +107,7 @@ void TwitterShieldClass::tweetLastPicture(String pictureText ,byte imageSource)
 
 	tweetLastPicture(cTypePictureText,imageSource);
 }
-#endif
+
 //Check if new tweet 
 bool TwitterShieldClass::isNewTweet()
 {
@@ -166,18 +129,6 @@ void TwitterShieldClass::untrackKeyword(const char * keyword)
 	OneSheeld.sendPacket(TWITTER_ID,0,TWITTER_UNTRACK_KEYWORD,1,new FunctionArg(keywordLength,(byte*)keyword));
 }
 
-//Support string for Arduino
-#if !defined(ARDUINO_LINUX)
-void TwitterShieldClass::trackKeyword(String keyword )
-{
-	const char * cTypeKeyword = keyword.c_str();
-
-	trackKeyword(cTypeKeyword);
-}
-#endif
-
-//Support string for galileo
-#if defined(ARDUINO_LINUX)
 void TwitterShieldClass::trackKeyword(String keyword )
 {
 	int keywordLength = keyword.length();
@@ -192,21 +143,8 @@ void TwitterShieldClass::trackKeyword(String keyword )
 
 	trackKeyword(cTypeKeyword);
 }
-#endif 
 
 
-//Support string for Arduino
-#if !defined(ARDUINO_LINUX)
-void TwitterShieldClass::untrackKeyword(String keyword )
-{
-	const char * cTypeKeyword = keyword.c_str();
-
-	untrackKeyword(cTypeKeyword);
-}
-#endif
-
-//Support string for galileo
-#if defined(ARDUINO_LINUX)
 void TwitterShieldClass::untrackKeyword(String keyword )
 {
 	int keywordLength = keyword.length();
@@ -221,7 +159,7 @@ void TwitterShieldClass::untrackKeyword(String keyword )
 
 	untrackKeyword(cTypeKeyword);
 }
-#endif 
+
 //UserName Getter
 char * TwitterShieldClass::getUserName()
 {
@@ -314,7 +252,3 @@ void TwitterShieldClass::setOnNewTweet(void (*userFunction)(String userName ,Str
 	usedSetOnWithString=true;
 }
 
-#ifdef TWITTER_SHIELD
-//Instantiating Object 
-TwitterShieldClass Twitter;
-#endif

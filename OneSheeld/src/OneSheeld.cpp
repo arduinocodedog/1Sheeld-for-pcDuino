@@ -12,7 +12,7 @@
   Date:          2014.5
 
 */
-  
+#define FROM_ONESHEELD_LIBRARY
 #include "OneSheeld.h"
 #ifdef PCDUINO
 #include "Serial.h"
@@ -28,10 +28,10 @@ bool OneSheeldClass::inACallback=false;
 bool OneSheeldClass::callbacksInterrupts=false;
 bool OneSheeldClass::isFirstFrame=false;
 ShieldParent * OneSheeldClass::shieldsArray[]={0};
-#ifdef INTERNET_SHIELD
+// #ifdef INTERNET_SHIELD
 byte OneSheeldClass::requestsCounter=0;
 HttpRequest ** OneSheeldClass::requestsArray=(HttpRequest**)malloc(sizeof(HttpRequest*)*MAX_NO_OF_REQUESTS);
-#endif
+// #endif
 //Class Constructor
 OneSheeldClass::OneSheeldClass(Stream &s) :OneSheeldSerial(s)
 {
@@ -47,16 +47,9 @@ OneSheeldClass::OneSheeldClass(Stream &s) :OneSheeldSerial(s)
       isArgumentsNumberMalloced=false;
       isArgumentLengthMalloced=false;
       callbacksInterrupts=false;
-      #ifdef REMOTE_SHIELD
-      isSetOnFloatMessageInvoked =false;
-      isSetOnStringMessageInvoked =false;
-      usedSetOnFloatWithString=false;
-      usedSetOnStringWithString=false;
-      isOneSheeldRemoteDataUsed=false;
-      remoteOneSheeldsCounter=0;
-      #endif
       framestart =false;
       isOneSheeldConnected =false;
+      isAppConnectionCallBack = false;
 }
 
 //Library Starter
@@ -73,8 +66,6 @@ void OneSheeldClass::waitForAppConnection()
 {
   isOneSheeldConnected = false;
 
-  sendPacket(ONESHEELD_ID,0,WAIT_RESET_APPLICATION,0);
-
   while(!isOneSheeldConnected)
   {
     OneSheeld.processInput();
@@ -85,12 +76,13 @@ void OneSheeldClass::waitForAppConnection()
 void OneSheeldClass::begin()
 {
   begin(115200);
+  sendPacket(ONESHEELD_ID,0,CHECK_APP_CONNECTION,0);
   isInit=true;
-  #ifdef INTERNET_SHIELD
+  // #ifdef INTERNET_SHIELD
   for(int i=0;i<requestsCounter;i++)
     requestsArray[i]->sendInitFrame();
   free(requestsArray);
-  #endif
+  // #endif
 }
 
 void OneSheeldClass::addToShieldsArray(ShieldParent * shield)
@@ -98,13 +90,13 @@ void OneSheeldClass::addToShieldsArray(ShieldParent * shield)
   if(shieldsCounter==SHIELDS_NO) return;
   shieldsArray[shieldsCounter++] = shield;  
 }
-#ifdef INTERNET_SHIELD
+// #ifdef INTERNET_SHIELD
 void OneSheeldClass::addToUnSentRequestsArray(HttpRequest * request)
 {
   if(requestsCounter==MAX_NO_OF_REQUESTS) return;
   requestsArray[requestsCounter++] = request;  
 }
-#endif
+// #endif
 bool OneSheeldClass::isInitialized()
 {
   return isInit;
@@ -114,23 +106,25 @@ bool OneSheeldClass::isInitialized()
 void OneSheeldClass::sendPacket(byte shieldID, byte instanceID, byte functionID, byte argNo, ...)
 {
   unsigned long mill=millis()+1;
- if(shieldID!=ONESHEELD_ID&&isFirstFrame&&lastTimeFrameSent&&(mill-lastTimeFrameSent)<TIME_GAP){
+  unsigned long localLastTimeFrameSent=lastTimeFrameSent;
+  if(shieldID!=ONESHEELD_ID&&isFirstFrame&&localLastTimeFrameSent&&(mill-localLastTimeFrameSent)<TIME_GAP){
   if(inACallback){
      OneSheeldClass TempOneSheeld(OneSheeldSerial);
      ShieldParent::setOneSheeldInstance(TempOneSheeld);
-     while(millis()<(TIME_GAP+lastTimeFrameSent)||TempOneSheeld.framestart)
+     while((millis()<(TIME_GAP+localLastTimeFrameSent))||TempOneSheeld.framestart)
      {
         if(TempOneSheeld.OneSheeldSerial.available())
           TempOneSheeld.processInput(TempOneSheeld.OneSheeldSerial.read());
-      }
+     }
       ShieldParent::unSetOneSheeldInstance();
    }else
-      while(millis()<(TIME_GAP+lastTimeFrameSent)||framestart)
+      while((millis()<(TIME_GAP+localLastTimeFrameSent))||framestart)
       {
         if(OneSheeldSerial.available())
           OneSheeld.processInput(OneSheeldSerial.read());
       }
   }
+
   isFirstFrame=true;
   va_list arguments ;
   va_start (arguments,argNo);
@@ -159,24 +153,25 @@ void OneSheeldClass::sendPacket(byte shieldID, byte instanceID, byte functionID,
  }
     OneSheeldSerial.write((byte)END_OF_FRAME);
     va_end(arguments);
-    lastTimeFrameSent=millis()+1;
+    if(shieldID!=ONESHEELD_ID)lastTimeFrameSent=millis()+1;
 }
 
 void OneSheeldClass::sendPacket(byte shieldID, byte instanceID, byte functionID, byte argNo, FunctionArg ** arguments)
 {
   unsigned long mill=millis()+1;
- if(shieldID!=ONESHEELD_ID&&isFirstFrame&&lastTimeFrameSent&&(mill-lastTimeFrameSent)<TIME_GAP){
+  unsigned long localLastTimeFrameSent=lastTimeFrameSent;
+  if(shieldID!=ONESHEELD_ID&&isFirstFrame&&localLastTimeFrameSent&&(mill-localLastTimeFrameSent)<TIME_GAP){
   if(inACallback){
      OneSheeldClass TempOneSheeld(OneSheeldSerial);
      ShieldParent::setOneSheeldInstance(TempOneSheeld);
-     while(millis()<(TIME_GAP+lastTimeFrameSent)||TempOneSheeld.framestart)
+     while((millis()<(TIME_GAP+localLastTimeFrameSent))||TempOneSheeld.framestart)
      {
         if(TempOneSheeld.OneSheeldSerial.available())
           TempOneSheeld.processInput(TempOneSheeld.OneSheeldSerial.read());
-      }
+     }
       ShieldParent::unSetOneSheeldInstance();
    }else
-      while(millis()<(TIME_GAP+lastTimeFrameSent)||framestart)
+      while((millis()<(TIME_GAP+localLastTimeFrameSent))||framestart)
       {
         if(OneSheeldSerial.available())
           OneSheeld.processInput(OneSheeldSerial.read());
@@ -203,11 +198,16 @@ void OneSheeldClass::sendPacket(byte shieldID, byte instanceID, byte functionID,
       }
  }
     OneSheeldSerial.write((byte)END_OF_FRAME);
-    lastTimeFrameSent=millis()+1;
+    if(shieldID!=ONESHEELD_ID)lastTimeFrameSent=millis()+1;
 }
 bool OneSheeldClass::isAppConnected()
 {
   return isOneSheeldConnected;
+}
+void OneSheeldClass::setOnAppConnected(void (*userFunction)(bool isAppConnected))
+{
+  isAppConnectedCallBack = userFunction;
+  isAppConnectionCallBack = true;
 }
 //Shield_ID Getter
 byte OneSheeldClass::getShieldId()
@@ -400,7 +400,7 @@ void OneSheeldClass::processInput(int data)
                 if(counter==1){
                   shield=data;
                   bool found = false;
-                  if(shield == ONESHEELD_ID || shield == REMOTE_SHEELD_ID) found = true;
+                  if(shield == ONESHEELD_ID) found = true;
                   else 
                   for (int i=0;i<shieldsCounter;i++) {
                     if (shield == shieldsArray[i]->getShieldId()){
@@ -464,13 +464,7 @@ void OneSheeldClass::freeMemoryAllocated(){
           isArgumentLengthMalloced=false;
         }
 }
-#ifdef REMOTE_SHIELD
-void OneSheeldClass::listenToRemoteOneSheeld(RemoteOneSheeld * oneSheeld)
-{
-  if(remoteOneSheeldsCounter<MAX_REMOTE_CONNECTIONS)
-  listOfRemoteOneSheelds[remoteOneSheeldsCounter++]=oneSheeld;
-} 
-#endif
+
 //Data Sender to Input Shields
 void OneSheeldClass::sendToShields()
 {
@@ -479,13 +473,6 @@ void OneSheeldClass::sendToShields()
   switch (number_Of_Shield)
   {
     case ONESHEELD_ID            :processFrame();break;
-    #ifdef REMOTE_SHIELD
-    case REMOTE_SHEELD_ID        : for(int i=0;i<remoteOneSheeldsCounter;i++)
-                                    listOfRemoteOneSheelds[i]->processFrame();
-                                    if(isOneSheeldRemoteDataUsed)
-                                    processRemoteData();
-                                    break;
-    #endif
     default:
     for(int i=0 ;i<shieldsCounter;i++)
     {
@@ -493,111 +480,6 @@ void OneSheeldClass::sendToShields()
     }
   }
 }
-#ifdef REMOTE_SHIELD
-void OneSheeldClass::setOnNewMessage(void (*userFunction)(char address[], char  key[], float value))
-{
-  changeFloatCallBack = userFunction;
-  isSetOnFloatMessageInvoked = true;
-  isOneSheeldRemoteDataUsed=true;
-}
-
-void OneSheeldClass::setOnNewMessage(void (*userFunction)(String address, String key, float value))
-{
-  changeFloatCallBackWithString = userFunction;
-  usedSetOnFloatWithString = true;
-  isOneSheeldRemoteDataUsed=true;
-}
-
-
-void OneSheeldClass::setOnNewMessage(void (*userFunction)(char address[], char key[], char value[]))
-{
-  changeStringCallBack = userFunction;
-  isSetOnStringMessageInvoked = true;
-  isOneSheeldRemoteDataUsed=true;
-}
-
-void OneSheeldClass::setOnNewMessage(void (*userFunction)(String address, String key, String value))
-{
-  changeStringCallBackWithString = userFunction;
-  usedSetOnStringWithString = true;
-  isOneSheeldRemoteDataUsed=true;
-}
-
-void OneSheeldClass::processRemoteData()
-{
-  byte functionId = getFunctionId();
-
-  if(functionId == READ_MESSAGE_FLOAT)
-  {
-    char remoteAddress[37];
-    memcpy(remoteAddress,getArgumentData(0),36);
-    remoteAddress[36]='\0';  // processed the remote address 
-
-    int keyLength = getArgumentLength(1);
-    char key[keyLength+1];
-    memcpy(key,getArgumentData(1),keyLength);
-    key[keyLength]='\0';
-
-    float incomingValue = convertBytesToFloat(getArgumentData(2));
-
-    if(!isInACallback())
-    {
-      if(isSetOnFloatMessageInvoked)
-      {
-        enteringACallback();
-        (*changeFloatCallBack)(remoteAddress,key,incomingValue);
-        exitingACallback();
-      }
-
-      if(usedSetOnFloatWithString)
-      {
-        String remoteAddressInString(remoteAddress);
-        String keyInString(key);
-        enteringACallback();
-        (*changeFloatCallBackWithString)(remoteAddressInString,keyInString,incomingValue);
-        exitingACallback();
-      }
-    }
-
-  }
-  else if(functionId == READ_MESSAGE_STRING)
-  {
-    char remoteAddress[37];
-    memcpy(remoteAddress,getArgumentData(0),36);
-    remoteAddress[36]='\0';  // processed the remote address 
-
-    int keyLength = getArgumentLength(1);
-    char key[keyLength+1];
-    memcpy(key,getArgumentData(1),keyLength);
-    key[keyLength]='\0';
-    
-    int stringDataLength = getArgumentLength(2);
-    char stringData[stringDataLength+2];
-    memcpy(stringData,getArgumentData(2),stringDataLength);
-    stringData[stringDataLength]='\0';
-
-    if(!isInACallback())
-    {    
-      if(isSetOnStringMessageInvoked)
-      {
-        enteringACallback();
-        (*changeStringCallBack)(remoteAddress,key,stringData);
-        exitingACallback();
-      }
-
-      if(usedSetOnStringWithString)
-      {
-        String remoteAddressInString(remoteAddress);
-        String keyInString(key);
-        String stringDataInString(stringData);
-        enteringACallback();
-        (*changeStringCallBackWithString)(remoteAddressInString,keyInString,stringDataInString);
-        exitingACallback();
-      }
-    }
-  }
-}
-#endif
 
 void OneSheeldClass::processFrame(){
   byte functionId = getFunctionId();
@@ -605,10 +487,12 @@ void OneSheeldClass::processFrame(){
   if(functionId == DISCONNECTION_CHECK_FUNCTION)
   {
       isOneSheeldConnected=false;
+      if(isAppConnectionCallBack)(*isAppConnectedCallBack)(isOneSheeldConnected);
   }
   else if(functionId == CONNECTION_CHECK_FUNCTION)
   {
       isOneSheeldConnected=true;
+      if(isAppConnectionCallBack)(*isAppConnectedCallBack)(isOneSheeldConnected);
   }
   else if(functionId == LIBRARY_VERSION_REQUEST)
   {
@@ -673,14 +557,14 @@ void OneSheeldClass::delay(unsigned long time)
     {
      OneSheeldClass TempOneSheeld(OneSheeldSerial);
      ShieldParent::setOneSheeldInstance(TempOneSheeld);
-     while(millis()<(now+time)||TempOneSheeld.framestart)
+     while((millis()<(now+time))||TempOneSheeld.framestart)
      {
         if(TempOneSheeld.OneSheeldSerial.available())
           TempOneSheeld.processInput(TempOneSheeld.OneSheeldSerial.read());
       }
       ShieldParent::unSetOneSheeldInstance();
    }else
-      while(millis()<(now+time)||framestart)
+      while((millis()<(now+time))||framestart)
       {
         if(OneSheeldSerial.available())
           OneSheeld.processInput(OneSheeldSerial.read());

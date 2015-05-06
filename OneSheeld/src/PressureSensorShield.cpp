@@ -12,6 +12,7 @@
   Date:          2014.5
 
 */
+#define FROM_ONESHEELD_LIBRARY
 #include "OneSheeld.h"
 #include "PressureSensorShield.h"
 
@@ -22,7 +23,7 @@ PressureSensorShield::PressureSensorShield() : ShieldParent(PRESSURE_ID)
 	isCallBackAssigned=false;
 }
 //Pressure Getter
-unsigned long PressureSensorShield::getValue()
+int PressureSensorShield::getValue()
 {
 	
 	return value;
@@ -36,11 +37,7 @@ void PressureSensorShield::processData()
 	byte functionId =getOneSheeldInstance().getFunctionId();
 	if(functionId==PRESSURE_VALUE)
 	{
-		value=0;
-		data[0]=getOneSheeldInstance().getArgumentData(0)[0];
-		data[1]=getOneSheeldInstance().getArgumentData(0)[1];
-		value|=data[0];
-		value|=(data[1]<<8);
+		value=(getOneSheeldInstance().getArgumentData(0)[1]<<8)|(getOneSheeldInstance().getArgumentData(0)[0]);
 		//Users Function Invoked
 		if(isCallBackAssigned && !isInACallback())
 		{
@@ -57,7 +54,3 @@ void PressureSensorShield::setOnValueChange(void (*userFunction)(unsigned long p
 	isCallBackAssigned=true;
 }
 
-#ifdef PRESSURE_SHIELD
-//Instatntiating Object
-PressureSensorShield PressureSensor;
-#endif
