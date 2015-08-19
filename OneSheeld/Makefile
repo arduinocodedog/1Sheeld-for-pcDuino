@@ -33,11 +33,24 @@ SRCS = \
 	src/FacebookShield.cpp \
 	src/FoursquareShield.cpp \
 	src/GamePadShield.cpp \
+	src/GLCDAnalogGauge.cpp \
+	src/GLCDButton.cpp \
+	src/GLCDCheckBox.cpp \
+	src/GLCDEllipse.cpp \
+	src/GLCDLine.cpp \
+	src/GLCDPoint.cpp \
+	src/GLCDProgressBar.cpp \
+	src/GLCDRadioButton.cpp \
+	src/GLCDRectangle.cpp \
+	src/GLCDShield.cpp \
+	src/GLCDSlider.cpp \
+	src/GLCDTextBox.cpp \
 	src/GPSShield.cpp \
 	src/GravitySensorShield.cpp \
 	src/GyroscopeSensorShield.cpp \
 	src/HttpRequest.cpp \
 	src/HttpResponse.cpp \
+	src/InteractiveShapeClass.cpp \
 	src/InternetShield.cpp \
 	src/JsonKey.cpp \
 	src/JsonKeyChain.cpp \
@@ -63,6 +76,7 @@ SRCS = \
 	src/ProximitySensorShield.cpp \
 	src/PushButtonShield.cpp \
 	src/SevenSegmentShield.cpp \
+	src/ShapeClass.cpp \
 	src/ShieldParent.cpp \
 	src/SkypeShield.cpp \
 	src/SliderShield.cpp \

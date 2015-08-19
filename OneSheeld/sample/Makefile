@@ -20,14 +20,14 @@ LIBS=../bin/OneSheeld.a ../../libarduino.a
 TARGET=./bin
 
 OBJS = Simple/Accelerometer Simple/Buzzer Simple/Camera Simple/Color Simple/DataLogger
-OBJS += Simple/Facebook Simple/Foursquare Simple/GamePad Simple/Gravity
+OBJS += Simple/Facebook Simple/Foursquare Simple/GamePad Simple/GLCD Simple/Gravity
 OBJS += Simple/Gyroscope Simple/Internet Simple/Keyboard Simple/Keypad Simple/Led 
 OBJS += Simple/Light Simple/Magnetometer Simple/Mic Simple/MusicPlayer 
 OBJS += Simple/NFC Simple/Notification Simple/Orientation Simple/Pattern
 OBJS += Simple/Phone Simple/Proximity Simple/PushButton Simple/Slider
 OBJS += Simple/Temperature Simple/Terminal Simple/Twitter Simple/VoiceRecognition
 OBJS += Advanced/Accelerometer Advanced/Buzzer Advanced/Camera Advanced/Clock Advanced/Color
-OBJS += Advanced/Email Advanced/Facebook Advanced/Foursquare Advanced/GamePad
+OBJS += Advanced/Email Advanced/Facebook Advanced/Foursquare Advanced/GamePad Advanced/GLCD
 OBJS += Advanced/GPS Advanced/Gravity Advanced/Internet Advanced/Keypad Advanced/LCD Advanced/Light
 OBJS += Advanced/Magnetometer Advanced/Mic Advanced/MusicPlayer Advanced/NFC Advanced/Notification
 OBJS += Advanced/Orientation Advanced/Phone Advanced/Pressure Advanced/Proximity 

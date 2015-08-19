@@ -35,7 +35,8 @@ int red = 8;
 int green = 9;
 int blue = 10;
 
-void setup() {
+void setup()
+{
   /* Start communication. */
   OneSheeld.begin();
   /* Subscribe to the new tag scanned event. */
@@ -48,7 +49,8 @@ void setup() {
   pinMode(blue, OUTPUT);
 }
 
-void loop() {
+void loop()
+{
   /* Leave the loop empty. */
 }
 

@@ -42,7 +42,7 @@ typedef unsigned char byte;
 #define START_OF_FRAME  0xFF
 #define END_OF_FRAME 	0x00
 //Library Version
-#define LIBRARY_VERSION 6
+#define LIBRARY_VERSION 7
 //Time between sending Frames
 #define TIME_GAP		200UL
 
@@ -65,7 +65,7 @@ typedef unsigned char byte;
 
 
 //Numer of Shields
-#define SHIELDS_NO	40
+#define SHIELDS_NO	41
 
 //Class for Datalength and Data
 class FunctionArg
