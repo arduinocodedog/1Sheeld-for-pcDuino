@@ -73,7 +73,7 @@ void GLCDShield::processData()
 
      byte incomingShapeType = getOneSheeldInstance().getFunctionId();
      
-     for(int i ; i<MAX_NO_OF_SHAPE_USED ;i++)
+     for(int i=0; i<MAX_NO_OF_SHAPE_USED ;i++)
      {
        if(interactiveShapesArray[i] != NULL && interactiveShapesArray[i]->shapeID == shapeId  && interactiveShapesArray[i]->shapeType == incomingShapeType)
        {
