@@ -50,7 +50,6 @@ SRCS = \
 	src/GyroscopeSensorShield.cpp \
 	src/HttpRequest.cpp \
 	src/HttpResponse.cpp \
-	src/InteractiveShapeClass.cpp \
 	src/InternetShield.cpp \
 	src/JsonKey.cpp \
 	src/JsonKeyChain.cpp \

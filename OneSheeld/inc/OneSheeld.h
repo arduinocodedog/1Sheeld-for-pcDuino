@@ -42,7 +42,7 @@ typedef unsigned char byte;
 #define START_OF_FRAME  0xFF
 #define END_OF_FRAME 	0x00
 //Library Version
-#define LIBRARY_VERSION 7
+#define LIBRARY_VERSION 8
 //Time between sending Frames
 #define TIME_GAP		200UL
 
@@ -143,15 +143,12 @@ public:
 	// #endif
 	static bool isInitialized();
 	//Frame Sender
-	void sendPacket(byte , byte ,byte , byte , ...);
-	void sendPacket(byte , byte , byte , byte , FunctionArg ** );
+	void sendShieldFrame(byte , byte ,byte , byte , ...);
+	void sendShieldFrame(byte , byte , byte , byte , FunctionArg ** );
+	void setOnNewShieldFrame(void (*)(byte, byte, byte, byte, byte *,byte **));
+	void setOnNewSerialData(void (*)(byte));
 	//PulseWidthModulation Getter 
-	unsigned char analogRead(int );
-	//Set on change for users function
-	void setOnNewMessage(void (*)(char  [] ,char [] ,float));
-	void setOnNewMessage(void (*)(String ,String ,float));
-	void setOnNewMessage(void (*)(char [] ,char [] ,char []));
-	void setOnNewMessage(void (*)(String  ,String ,String ));	 
+	unsigned char analogRead(int );	 
 	Stream & OneSheeldSerial;
 	void delay(unsigned long);
 	bool isCallbacksInterruptsSet();
@@ -164,6 +161,8 @@ private:
 	bool isArgumentLengthMalloced;
 	bool isOneSheeldConnected;
 	bool isAppConnectionCallBack;
+	bool isShieldFrameCallback;
+	bool isSerialDataCallback;
 	static bool isFirstFrame;
 	bool framestart;
 	static bool inACallback;
@@ -199,19 +198,15 @@ private:
 	void begin(long baudRate);
 	void freeMemoryAllocated();
 	void processFrame();
-	void (*changeFloatCallBack)(char [],char [], float);
-	void (*changeFloatCallBackWithString)(String ,String , float);
-	void (*changeStringCallBack)(char [],char [], char []);
-	void (*changeStringCallBackWithString)(String ,String ,String );
 	void (*isAppConnectedCallBack)(bool);
+	void (*shieldFrameCallback)(byte, byte, byte, byte, byte *,byte **);
+	void (*serialDataCallback)(byte);
 	void enteringACallback();
 	void exitingACallback();
 	bool isInACallback();
 	void processInput(int byte);
 friend class ShieldParent;
 };
-
-
 //Extern Object
 extern OneSheeldClass OneSheeld;
 #endif

@@ -50,6 +50,8 @@ OneSheeldClass::OneSheeldClass(Stream &s) :OneSheeldSerial(s)
       framestart =false;
       isOneSheeldConnected =false;
       isAppConnectionCallBack = false;
+      isShieldFrameCallback = false;
+      isSerialDataCallback = false;
 }
 
 //Library Starter
@@ -76,7 +78,7 @@ void OneSheeldClass::waitForAppConnection()
 void OneSheeldClass::begin()
 {
   begin(115200);
-  sendPacket(ONESHEELD_ID,0,CHECK_APP_CONNECTION,0);
+  sendShieldFrame(ONESHEELD_ID,0,CHECK_APP_CONNECTION,0);
   isInit=true;
   // #ifdef INTERNET_SHIELD
   for(int i=0;i<requestsCounter;i++)
@@ -102,8 +104,20 @@ bool OneSheeldClass::isInitialized()
   return isInit;
 }
 
+void OneSheeldClass::setOnNewShieldFrame(void (*userFunction)(byte shieldID, byte instanceID, byte functionID, byte argNo,byte *argumentL,byte **arguments))
+{
+  isShieldFrameCallback=true;
+  shieldFrameCallback=userFunction;
+}
+
+void OneSheeldClass::setOnNewSerialData(void (*userFunction)(byte))
+{
+  isSerialDataCallback=true;
+  serialDataCallback=userFunction;
+}
+
 //Frame Sender for Output Shields
-void OneSheeldClass::sendPacket(byte shieldID, byte instanceID, byte functionID, byte argNo, ...)
+void OneSheeldClass::sendShieldFrame(byte shieldID, byte instanceID, byte functionID, byte argNo, ...)
 {
   unsigned long mill=millis()+1;
   unsigned long localLastTimeFrameSent=lastTimeFrameSent;
@@ -156,7 +170,7 @@ void OneSheeldClass::sendPacket(byte shieldID, byte instanceID, byte functionID,
     if(shieldID!=ONESHEELD_ID)lastTimeFrameSent=millis()+1;
 }
 
-void OneSheeldClass::sendPacket(byte shieldID, byte instanceID, byte functionID, byte argNo, FunctionArg ** arguments)
+void OneSheeldClass::sendShieldFrame(byte shieldID, byte instanceID, byte functionID, byte argNo, FunctionArg ** arguments)
 {
   unsigned long mill=millis()+1;
   unsigned long localLastTimeFrameSent=lastTimeFrameSent;
@@ -388,6 +402,8 @@ void OneSheeldClass::processInput(int data)
               if(endFrame==END_OF_FRAME)                                   //if the endframe is equal to zero send to shields and free memory
               {
                       sendToShields();
+                      if(isShieldFrameCallback)
+                        shieldFrameCallback(shield,instance,functions,argumentnumber,argumentL,arguments);
                       freeMemoryAllocated();
                       
               }
@@ -400,7 +416,7 @@ void OneSheeldClass::processInput(int data)
                 if(counter==1){
                   shield=data;
                   bool found = false;
-                  if(shield == ONESHEELD_ID) found = true;
+                  if(shield == ONESHEELD_ID || isShieldFrameCallback) found = true;
                   else 
                   for (int i=0;i<shieldsCounter;i++) {
                     if (shield == shieldsArray[i]->getShieldId()){
@@ -435,7 +451,10 @@ void OneSheeldClass::processInput()
 {
   while(OneSheeldSerial.available())
   {
-    processInput(OneSheeldSerial.read());
+    byte data=OneSheeldSerial.read();
+    processInput(data);
+    if(isSerialDataCallback)
+      serialDataCallback(data);
   }
 }
 
@@ -496,17 +515,17 @@ void OneSheeldClass::processFrame(){
   }
   else if(functionId == LIBRARY_VERSION_REQUEST)
   {
-    sendPacket(ONESHEELD_ID,0,SEND_LIBRARY_VERSION,0);
+    sendShieldFrame(ONESHEELD_ID,0,SEND_LIBRARY_VERSION,0);
   }
 }
 
-static unsigned long analogReadtimeout = 1000000L;
+static unsigned long analogReadTimeout = 1000000L;
 
 //PulseWidthModulation Getter 
 unsigned char OneSheeldClass::analogRead(int pin)
 {
-    double period=(double)pulseIn(pin,HIGH,analogReadtimeout)+(double)pulseIn(pin,LOW,analogReadtimeout);
-    double duty=(double)pulseIn(pin,HIGH,analogReadtimeout);
+    double period=(double)pulseIn(pin,HIGH,analogReadTimeout)+(double)pulseIn(pin,LOW,analogReadTimeout);
+    double duty=(double)pulseIn(pin,HIGH,analogReadTimeout);
     double fraction=duty/period;
     unsigned char pwm_out=(unsigned char)(ceil)(fraction*255);
     return pwm_out;
@@ -517,7 +536,7 @@ void OneSheeldClass::enteringACallback()
   if(!isInACallback())
   {
     inACallback=true;
-    sendPacket(ONESHEELD_ID,0,CALLBACK_ENTERED,0);
+    sendShieldFrame(ONESHEELD_ID,0,CALLBACK_ENTERED,0);
   }
 }
 
@@ -526,7 +545,7 @@ void OneSheeldClass::exitingACallback()
   if(isInACallback())
   {
     inACallback=false;
-    sendPacket(ONESHEELD_ID,0,CALLBACK_EXITED,0);
+    sendShieldFrame(ONESHEELD_ID,0,CALLBACK_EXITED,0);
   }
 }
 
@@ -582,6 +601,6 @@ void serialEvent()
 {
 #ifdef PCDUINO
   Serial.process_recv();
-#endif	
+#endif
   OneSheeld.processInput();      
 }

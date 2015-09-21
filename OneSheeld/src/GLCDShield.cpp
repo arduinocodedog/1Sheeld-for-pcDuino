@@ -28,7 +28,7 @@ GLCDShield::GLCDShield() : ShieldParent(GLCD_ID)
 void GLCDShield::clear()
 {
 	byte functionId = GLCD_CLEAR;
-	OneSheeld.sendPacket(GLCD_ID,0,GLCD_TYPE,1,new FunctionArg(1,&functionId));	
+	OneSheeld.sendShieldFrame(GLCD_ID,0,GLCD_TYPE,1,new FunctionArg(1,&functionId));	
 }
 
 void GLCDShield::draw(ShapeClass &usersShape)
@@ -73,14 +73,13 @@ void GLCDShield::processData()
 
      byte incomingShapeType = getOneSheeldInstance().getFunctionId();
      
-     for(int i=0; i<MAX_NO_OF_SHAPE_USED ;i++)
+     for(int i = 0 ; i<MAX_NO_OF_SHAPE_USED ;i++)
      {
        if(interactiveShapesArray[i] != NULL && interactiveShapesArray[i]->shapeID == shapeId  && interactiveShapesArray[i]->shapeType == incomingShapeType)
        {
          switch(incomingShapeType)
          {
            case GLCD_BUTTON_TYPE :  {
-
                                           bool incomingButtonValue =  getOneSheeldInstance().getArgumentData(2)[0];
                                           GLCDButton * buttonPointer = ((GLCDButton*)(interactiveShapesArray[i]));
                                           buttonPointer->value = incomingButtonValue;
