@@ -42,7 +42,7 @@ typedef unsigned char byte;
 #define START_OF_FRAME  0xFF
 #define END_OF_FRAME 	0x00
 //Library Version
-#define LIBRARY_VERSION 8
+#define LIBRARY_VERSION 9
 //Time between sending Frames
 #define TIME_GAP		200UL
 
@@ -125,7 +125,6 @@ public:
 	void setOnAppConnected(void (*)(bool));
 	//Getters 
 	byte getShieldId();
-	byte getInstanceId();
 	byte getFunctionId();
 	byte getArgumentNo();
 	byte getArgumentLength(byte );
@@ -145,7 +144,7 @@ public:
 	//Frame Sender
 	void sendShieldFrame(byte , byte ,byte , byte , ...);
 	void sendShieldFrame(byte , byte , byte , byte , FunctionArg ** );
-	void setOnNewShieldFrame(void (*)(byte, byte, byte, byte, byte *,byte **));
+	void setOnNewShieldFrame(void (*)(byte, byte, byte, byte *,byte **));
 	void setOnNewSerialData(void (*)(byte));
 	//PulseWidthModulation Getter 
 	unsigned char analogRead(int );	 
@@ -170,7 +169,7 @@ private:
 	//Data bytes
 	byte numberOfDataMalloced;
 	byte shield;
-	byte instance;
+	byte verificationByte;
 	byte functions;
 	byte counter;
 	byte argumentcounter;
@@ -199,7 +198,7 @@ private:
 	void freeMemoryAllocated();
 	void processFrame();
 	void (*isAppConnectedCallBack)(bool);
-	void (*shieldFrameCallback)(byte, byte, byte, byte, byte *,byte **);
+	void (*shieldFrameCallback)(byte, byte, byte, byte *,byte **);
 	void (*serialDataCallback)(byte);
 	void enteringACallback();
 	void exitingACallback();

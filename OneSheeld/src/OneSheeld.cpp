@@ -36,7 +36,7 @@ HttpRequest ** OneSheeldClass::requestsArray=(HttpRequest**)malloc(sizeof(HttpRe
 OneSheeldClass::OneSheeldClass(Stream &s) :OneSheeldSerial(s)
 {
       shield=0;
-      instance=0;
+      verificationByte=0;
       functions=0;
       counter=0;
       argumentcounter=0;
@@ -104,7 +104,7 @@ bool OneSheeldClass::isInitialized()
   return isInit;
 }
 
-void OneSheeldClass::setOnNewShieldFrame(void (*userFunction)(byte shieldID, byte instanceID, byte functionID, byte argNo,byte *argumentL,byte **arguments))
+void OneSheeldClass::setOnNewShieldFrame(void (*userFunction)(byte shieldID, byte functionID, byte argNo,byte *argumentL,byte **arguments))
 {
   isShieldFrameCallback=true;
   shieldFrameCallback=userFunction;
@@ -228,11 +228,7 @@ byte OneSheeldClass::getShieldId()
 {
   return shield;
 } 
-//Instance_ID Getter
-byte OneSheeldClass::getInstanceId()
-{
-  return instance;
-} 
+
 //Funtcion_ID Getter
 byte OneSheeldClass::getFunctionId()
 {
@@ -403,7 +399,11 @@ void OneSheeldClass::processInput(int data)
               {
                       sendToShields();
                       if(isShieldFrameCallback)
-                        shieldFrameCallback(shield,instance,functions,argumentnumber,argumentL,arguments);
+                      {
+                        enteringACallback();
+                        shieldFrameCallback(shield,functions,argumentnumber,argumentL,arguments);
+                        exitingACallback();
+                      }
                       freeMemoryAllocated();
                       
               }
@@ -431,7 +431,9 @@ void OneSheeldClass::processInput(int data)
                   }
                 }
                 else if(counter==2){
-                  instance=data;
+                  verificationByte=data;
+                  byte leastBits = verificationByte & 0x0F;
+                  if((255-verificationByte>>4) != leastBits) framestart =false;
                   #ifdef DEBUG
                   Serial.print("C2 ");
                   #endif
@@ -454,7 +456,12 @@ void OneSheeldClass::processInput()
     byte data=OneSheeldSerial.read();
     processInput(data);
     if(isSerialDataCallback)
+    {
+      enteringACallback();
       serialDataCallback(data);
+      exitingACallback();
+    }
+      
   }
 }
 

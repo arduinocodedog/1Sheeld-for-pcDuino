@@ -67,7 +67,7 @@ void loop()
   { 
       for (int count = 0 ; count < 10 ; count++)
       {
-        OneSheeld.delay(1000);
+        delay(1000);
         int pin = 2;
         /* Output the digit to the seven segment. */
         for (int digit = 0 ; digit < 7; digit++)

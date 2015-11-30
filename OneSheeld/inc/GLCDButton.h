@@ -32,9 +32,10 @@ class GLCDButton : public ShapeClass
 {
 friend class GLCDShield;
 public:
-	GLCDButton(int , int , int ,int ,char * );
+	GLCDButton(int , int , int ,int , const char * );
+	GLCDButton(int , int , int ,int);
 	bool isPressed();
-	void setText(char *);
+	void setText(const char *);
 	void setStyle(byte );
 	void setDimensions(int,int);
 	void setOnChange(void(*)(bool));
@@ -47,6 +48,7 @@ private:
 	char * dataString;
 	bool dataMalloced;
 	bool value;
+	bool buttonHasName;
 	bool isCallBackAssigned;
 	void (*onChangeCallback)(bool);
 };

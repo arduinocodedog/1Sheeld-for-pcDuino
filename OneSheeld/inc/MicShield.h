@@ -21,11 +21,21 @@
 //Input Function ID 
 #define MIC_VALUE 0x01
 
+//Ouput Function ID's
+#define MIC_START_RECORD 	   0x01
+#define MIC_STOP_RECORD	   	   0x02
+
 class MicShield : public ShieldParent
 {
 public:
 	//Constructor
 	MicShield();
+	//Record Starter
+	void startRecording();
+	void startRecording(const char *);
+	void startRecording(String );
+	//Record Stop
+	void stopRecording();
 	//Getter
 	byte getValue();
 	//setOnChange for Users Function
