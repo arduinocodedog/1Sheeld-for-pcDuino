@@ -85,6 +85,7 @@ SRCS = \
 	src/ToggleButtonShield.cpp \
 	src/TTSShield.cpp \
 	src/TwitterShield.cpp \
+	src/VibrationShield.cpp \
 	src/VoiceRecognitionShield.cpp \
 	src/dtostrf.c \
 
