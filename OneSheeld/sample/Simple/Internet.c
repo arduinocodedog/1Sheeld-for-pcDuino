@@ -33,7 +33,7 @@ void onError(int errorNumber);
 
 /* Create an Http request with 1Sheeld website's url. */
 /* It's important to be created here as a global object. */
-HttpRequest oneSheeldRequest("http://www.1sheeld.com/");
+HttpRequest *oneSheeldRequest = NULL;
 
 /* Set an LED on pin 13.*/
 int ledPin = 13;
@@ -42,22 +42,29 @@ void setup()
 {
   /* Start communication. */
   OneSheeld.begin();
+
+  /* 
+   * A little different from Arduino version, pcDuino doesn't seem to like
+   * it initialized the other way (even in the IDE!).
+   */
+  oneSheeldRequest = new HttpRequest("http://www.1sheeld.com");
+  
   /* LED pin mode is output. */
   pinMode(ledPin,OUTPUT); 
   /* Subscribe to success callback for the request. */
-  oneSheeldRequest.setOnSuccess(&onSuccess);
+  oneSheeldRequest->setOnSuccess(&onSuccess);
   /* Subscribe to failure callback for the request. */
-  oneSheeldRequest.setOnFailure(&onFailure);
+  oneSheeldRequest->setOnFailure(&onFailure);
   /* Subscribe to start callback for the request. */
-  oneSheeldRequest.setOnStart(&onStart);
+  oneSheeldRequest->setOnStart(&onStart);
   /* Subscribe to finish callback for the request. */
-  oneSheeldRequest.setOnFinish(&onFinish);
+  oneSheeldRequest->setOnFinish(&onFinish);
   /* Sunbscribe to setOnNextResponseBytesUpdate to be notified once the bytes is updated in the response object. */
-  oneSheeldRequest.getResponse().setOnNextResponseBytesUpdate(&onBytesUpdate);
+  oneSheeldRequest->getResponse().setOnNextResponseBytesUpdate(&onBytesUpdate);
   /* Subscribe to response errors. */
-  oneSheeldRequest.getResponse().setOnError(&onError);
+  oneSheeldRequest->getResponse().setOnError(&onError);
   /* Perform a GET request using the Internet shield. */
-  Internet.performGet(oneSheeldRequest);
+  Internet.performGet(*oneSheeldRequest);
 }
 
 void loop()
@@ -101,7 +108,6 @@ void onBytesUpdate(HttpResponse &response)
       /* Ask for the next 64 bytes. */
       response.getNextBytes();
     }
-
 }
 
 void onError(int errorNumber)
