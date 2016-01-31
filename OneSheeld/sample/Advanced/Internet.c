@@ -39,7 +39,7 @@ void onInternetError(int requestId, int errorNumber);
 
 /* Create an Http request with openweathermap.org api url. */
 /* It's important to be created here as a global object. */
-HttpRequest *request = NULL;
+HttpRequest request("http://api.openweathermap.org/data/2.5/weather?appid=2711d6a2cc90e292afaf00f9335028b1");
 
 /* Set a RGB LED on pin 8,9 and 10. */
 int red = 8;
@@ -51,18 +51,12 @@ void setup()
   /* Start communication. */
   OneSheeld.begin();
   
-  /* 
-   * A little different from Arduino version, pcDuino doesn't seem to like
-   * it initialized the other way (even in the IDE!).
-   */
-  request = new HttpRequest("http://api.openweathermap.org/data/2.5/weather?appid=2711d6a2cc90e292afaf00f9335028b1");
-  
   /* Subscribe to success callback for the request. */
-  request->setOnSuccess(&onSuccess);
+  request.setOnSuccess(&onSuccess);
   /* Subscribe to json value replies. */
-  request->getResponse().setOnJsonResponse(&onJsonReply);
+  request.getResponse().setOnJsonResponse(&onJsonReply);
   /* Subscribe to response errors. */
-  request->getResponse().setOnError(&onResponseError);
+  request.getResponse().setOnError(&onResponseError);
   /* Subscribe to Internet errors. */
   Internet.setOnError(&onInternetError);
   /* LED pin modes OUTPUT.*/
@@ -77,9 +71,9 @@ void loop()
   if(VoiceRecognition.isNewCommandReceived())
   {
     /* Add paramter to the URL with the name of the country from the voice recognition. */
-    request->addParameter("q",VoiceRecognition.getLastCommand());
+    request.addParameter("q",VoiceRecognition.getLastCommand());
     /* Perform a GET request using the Internet shield. */
-    Internet.performGet(*request);
+    Internet.performGet(request);
     /* Wait for 5 seconds. */
     OneSheeld.delay(5000);
   }

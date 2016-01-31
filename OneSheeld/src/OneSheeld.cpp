@@ -30,7 +30,7 @@ bool OneSheeldClass::isFirstFrame=false;
 ShieldParent * OneSheeldClass::shieldsArray[]={0};
 // #ifdef INTERNET_SHIELD
 byte OneSheeldClass::requestsCounter=0;
-HttpRequest ** OneSheeldClass::requestsArray=(HttpRequest**)malloc(sizeof(HttpRequest*)*MAX_NO_OF_REQUESTS);
+HttpRequest ** OneSheeldClass::requestsArray=NULL;
 // #endif
 //Class Constructor
 OneSheeldClass::OneSheeldClass(Stream &s) :OneSheeldSerial(s)
@@ -96,7 +96,9 @@ void OneSheeldClass::addToShieldsArray(ShieldParent * shield)
 void OneSheeldClass::addToUnSentRequestsArray(HttpRequest * request)
 {
   if(requestsCounter==MAX_NO_OF_REQUESTS) return;
-  requestsArray[requestsCounter++] = request;  
+  if (requestsArray == NULL)
+	requestsArray = (HttpRequest**)malloc(sizeof(HttpRequest*)*MAX_NO_OF_REQUESTS);
+  requestsArray[requestsCounter++] = (HttpRequest *)request;  
 }
 // #endif
 bool OneSheeldClass::isInitialized()
