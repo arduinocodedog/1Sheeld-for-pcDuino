@@ -190,7 +190,7 @@ private:
 	static ShieldParent * shieldsArray[SHIELDS_NO];
 	// #ifdef INTERNET_SHIELD
 	//Array of pointers to un sent requests
-	static HttpRequest ** requestsArray;
+	static HttpRequest * requestsArray[MAX_NO_OF_REQUESTS];
 	// #endif
 	//Send Incomming Data to shields
 	void sendToShields();
