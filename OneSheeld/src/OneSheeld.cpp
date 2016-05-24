@@ -54,6 +54,7 @@ OneSheeldClass::OneSheeldClass()
       isAppConnectionCallBack = false;
       isShieldFrameCallback = false;
       isSerialDataCallback = false;
+      dontDelay = false;
 }
 
 //Library Starter
@@ -146,6 +147,14 @@ void OneSheeldClass::setOnNewSerialData(void (*userFunction)(byte))
   isSerialDataCallback=true;
   serialDataCallback=userFunction;
 }
+void OneSheeldClass::oneSheeldWrite(byte data)
+{
+  OneSheeldSerial->write(data);
+  if(!dontDelay)
+  {
+    ::delay(2);
+  }
+}
 
 //Frame Sender for Output Shields
 void OneSheeldClass::sendShieldFrame(byte shieldID, byte instanceID, byte functionID, byte argNo, ...)
@@ -173,30 +182,30 @@ void OneSheeldClass::sendShieldFrame(byte shieldID, byte instanceID, byte functi
   isFirstFrame=true;
   va_list arguments ;
   va_start (arguments,argNo);
-  OneSheeldSerial->write((byte)START_OF_FRAME);
-  OneSheeldSerial->write(LIBRARY_VERSION);
-  OneSheeldSerial->write(shieldID);
-  OneSheeldSerial->write(getVerificationByte());
-  OneSheeldSerial->write(functionID);
-  OneSheeldSerial->write(argNo);
-  OneSheeldSerial->write(255-argNo);
+  oneSheeldWrite((byte)START_OF_FRAME);
+  oneSheeldWrite(LIBRARY_VERSION);
+  oneSheeldWrite(shieldID);
+  oneSheeldWrite(getVerificationByte());
+  oneSheeldWrite(functionID);
+  oneSheeldWrite(argNo);
+  oneSheeldWrite(255-argNo);
 
 
   for (int i=0 ; i<argNo ; i++)
   {
     FunctionArg * temp = va_arg(arguments, FunctionArg *);
-    OneSheeldSerial->write(temp->getLength());
-    OneSheeldSerial->write(255-(temp->getLength()));
+    oneSheeldWrite(temp->getLength());
+    oneSheeldWrite(255-(temp->getLength()));
 
       for (int j=0 ; j<temp->getLength() ; j++)
       {
         byte* tempData=temp->getData();
-        OneSheeldSerial->write(tempData[j]);
+        oneSheeldWrite(tempData[j]);
       }
     delete(temp);
 
  }
-    OneSheeldSerial->write((byte)END_OF_FRAME);
+    oneSheeldWrite((byte)END_OF_FRAME);
     va_end(arguments);
     if(shieldID!=ONESHEELD_ID)lastTimeFrameSent=millis()+1;
 }
@@ -224,25 +233,25 @@ void OneSheeldClass::sendShieldFrame(byte shieldID, byte instanceID, byte functi
   }
 
   isFirstFrame=true;
-  OneSheeldSerial->write((byte)START_OF_FRAME);
-  OneSheeldSerial->write(LIBRARY_VERSION);
-  OneSheeldSerial->write(shieldID);
-  OneSheeldSerial->write(getVerificationByte());
-  OneSheeldSerial->write(functionID);
-  OneSheeldSerial->write(argNo);
-  OneSheeldSerial->write(255-argNo);
+  oneSheeldWrite((byte)START_OF_FRAME);
+  oneSheeldWrite(LIBRARY_VERSION);
+  oneSheeldWrite(shieldID);
+  oneSheeldWrite(getVerificationByte());
+  oneSheeldWrite(functionID);
+  oneSheeldWrite(argNo);
+  oneSheeldWrite(255-argNo);
   
   for (int i=0 ; i<argNo ; i++)
   {
-    OneSheeldSerial->write(arguments[i]->getLength());
-    OneSheeldSerial->write(255-(arguments[i]->getLength()));
+    oneSheeldWrite(arguments[i]->getLength());
+    oneSheeldWrite(255-(arguments[i]->getLength()));
       for (int j=0 ; j<arguments[i]->getLength() ; j++)
       {
         byte* tempData=arguments[i]->getData();
-        OneSheeldSerial->write(tempData[j]);
+        oneSheeldWrite(tempData[j]);
       }
  }
-    OneSheeldSerial->write((byte)END_OF_FRAME);
+    oneSheeldWrite((byte)END_OF_FRAME);
     if(shieldID!=ONESHEELD_ID)lastTimeFrameSent=millis()+1;
 }
 bool OneSheeldClass::isAppConnected()
@@ -428,8 +437,9 @@ void OneSheeldClass::processInput(int data)
             endFrame=data;
               if(endFrame==END_OF_FRAME)                                   //if the endframe is equal to zero send to shields and free memory
               {
+                      framestart=false;
                       sendToShields();
-                      if(isShieldFrameCallback)
+                      if(isShieldFrameCallback && shield!=0)
                       {
                         enteringACallback();
                         shieldFrameCallback(shield,functions,argumentnumber,argumentL,arguments);
@@ -589,7 +599,9 @@ void OneSheeldClass::enteringACallback()
   if(!isInACallback())
   {
     inACallback=true;
+    dontDelay = true;
     sendShieldFrame(ONESHEELD_ID,0,CALLBACK_ENTERED,0);
+    dontDelay = false;
   }
 }
 
@@ -598,7 +610,9 @@ void OneSheeldClass::exitingACallback()
   if(isInACallback())
   {
     inACallback=false;
+    dontDelay = true;
     sendShieldFrame(ONESHEELD_ID,0,CALLBACK_EXITED,0);
+    dontDelay = false;
   }
 }
 

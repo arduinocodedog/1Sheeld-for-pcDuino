@@ -42,7 +42,7 @@ typedef unsigned char byte;
 #define START_OF_FRAME  0xFF
 #define END_OF_FRAME 	0x00
 //Library Version
-#define LIBRARY_VERSION 11
+#define LIBRARY_VERSION 13
 //Time between sending Frames
 #define TIME_GAP		200UL
 
@@ -167,6 +167,7 @@ private:
 	bool isAppConnectionCallBack;
 	bool isShieldFrameCallback;
 	bool isSerialDataCallback;
+	bool dontDelay;
 	static bool isFirstFrame;
 	bool framestart;
 	static bool inACallback;
@@ -211,6 +212,7 @@ private:
 	void exitingACallback();
 	bool isInACallback();
 	void processInput(int);
+	void oneSheeldWrite(byte data);
 friend class ShieldParent;
 };
 //Extern Object
