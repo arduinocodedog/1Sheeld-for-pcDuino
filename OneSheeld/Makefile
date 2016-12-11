@@ -24,6 +24,7 @@ CFLAGS = -fPIC -DPCDUINO=1 -DARDUINO_LINUX=1
 
 SRCS = \
 	src/AccelerometerSensorShield.cpp \
+	src/BarcodeScannerShield.cpp \
 	src/BuzzerShield.cpp \
 	src/CameraShield.cpp \
 	src/ClockShield.cpp \
