@@ -27,11 +27,14 @@ SRCS = \
 	src/BarcodeScannerShield.cpp \
 	src/BuzzerShield.cpp \
 	src/CameraShield.cpp \
+	src/ChartShield.cpp \
 	src/ClockShield.cpp \
 	src/ColorShield.cpp \
 	src/DataLoggerShield.cpp \
 	src/EmailShield.cpp \
 	src/FacebookShield.cpp \
+	src/FaceDetectionShield.cpp \
+	src/FingerprintScannerShield.cpp \
 	src/FoursquareShield.cpp \
 	src/GamePadShield.cpp \
 	src/GLCDAnalogGauge.cpp \

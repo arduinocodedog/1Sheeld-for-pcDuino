@@ -19,10 +19,10 @@ INCS = -I.\
 LIBS=../bin/OneSheeld.a ../../libarduino.a 
 TARGET=./bin
 
-OBJS = Simple/Accelerometer Simple/BarcodeScanner Simple/Buzzer Simple/Camera Simple/Color 
-OBJS += Simple/DataLogger Simple/Facebook Simple/Foursquare Simple/GamePad Simple/GLCD 
-OBJS += Simple/Gravity Simple/Gyroscope Simple/Internet Simple/Keyboard Simple/Keypad 
-OBJS += Simple/Led Simple/Light Simple/Magnetometer Simple/Mic Simple/MusicPlayer 
+OBJS = Simple/Accelerometer Simple/BarcodeScanner Simple/Buzzer Simple/Camera Simple/Chart Simple/Color 
+OBJS += Simple/DataLogger Simple/Facebook Simple/FaceDetector Simple/FingerprintScanner Simple/Foursquare 
+OBJS += Simple/GamePad Simple/GLCD Simple/Gravity Simple/Gyroscope Simple/Internet Simple/Keyboard  
+OBJS += Simple/Keypad Simple/Led Simple/Light Simple/Magnetometer Simple/Mic Simple/MusicPlayer 
 OBJS += Simple/NFC Simple/Notification Simple/Orientation Simple/Pattern
 OBJS += Simple/Phone Simple/Proximity Simple/PushButton Simple/Slider
 OBJS += Simple/Temperature Simple/Terminal Simple/Twitter Simple/Vibration Simple/VoiceRecognition
