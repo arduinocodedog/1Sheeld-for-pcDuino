@@ -55,6 +55,7 @@ SRCS = \
 	src/HttpRequest.cpp \
 	src/HttpResponse.cpp \
 	src/InternetShield.cpp \
+	src/IOTShield.cpp \
 	src/JsonKey.cpp \
 	src/JsonKeyChain.cpp \
 	src/KeyboardShield.cpp \

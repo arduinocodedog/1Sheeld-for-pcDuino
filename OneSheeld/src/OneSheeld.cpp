@@ -83,8 +83,8 @@ void OneSheeldClass::waitForAppConnection()
 
 void OneSheeldClass::init()
 {
-  sendShieldFrame(ONESHEELD_ID,0,CHECK_APP_CONNECTION,0);
   isInit=true;
+  sendShieldFrame(ONESHEELD_ID,0,CHECK_APP_CONNECTION,0);
   if(requestsArray!=0){
     for(int i=0;i<requestsCounter;i++)
       requestsArray[i]->sendInitFrame();
@@ -150,7 +150,7 @@ void OneSheeldClass::setOnNewSerialData(void (*userFunction)(byte))
 }
 void OneSheeldClass::oneSheeldWrite(byte data)
 {
-  OneSheeldSerial->write(data);
+  if(isInit)OneSheeldSerial->write(data);
   if(!dontDelay)
   {
     ::delay(2);
@@ -294,20 +294,25 @@ byte * OneSheeldClass::getArgumentData(byte x)
 }
 
 //Convert float to array of bytes
-byte * OneSheeldClass::convertFloatToBytes(float data)
+void OneSheeldClass::convertFloatToBytes(float data, byte * out)
 {
-  convertFloatUnion.number = data;
-  return convertFloatUnion.floatBytes;
+  FloatUnion f2bUnion;
+  f2bUnion.number = data;
+  out[0]=f2bUnion.floatBytes[0];
+  out[1]=f2bUnion.floatBytes[1];
+  out[2]=f2bUnion.floatBytes[2];
+  out[3]=f2bUnion.floatBytes[3];
 } 
 
 //Convert array of bytes to float
 float OneSheeldClass::convertBytesToFloat(byte * data)
 {
-  convertFloatUnion.floatBytes[0] = data[0];
-  convertFloatUnion.floatBytes[1] = data[1];
-  convertFloatUnion.floatBytes[2] = data[2];
-  convertFloatUnion.floatBytes[3] = data[3];
-  return convertFloatUnion.number;
+  FloatUnion b2fUnion;
+  b2fUnion.floatBytes[0] = data[0];
+  b2fUnion.floatBytes[1] = data[1];
+  b2fUnion.floatBytes[2] = data[2];
+  b2fUnion.floatBytes[3] = data[3];
+  return b2fUnion.number;
 } 
 
 //Incomming Frames processing 

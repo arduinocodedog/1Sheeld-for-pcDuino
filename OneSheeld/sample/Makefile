@@ -21,14 +21,14 @@ TARGET=./bin
 
 OBJS = Simple/Accelerometer Simple/BarcodeScanner Simple/Buzzer Simple/Camera Simple/Chart Simple/Color 
 OBJS += Simple/DataLogger Simple/Facebook Simple/FaceDetector Simple/FingerprintScanner Simple/Foursquare 
-OBJS += Simple/GamePad Simple/GLCD Simple/Gravity Simple/Gyroscope Simple/Internet Simple/Keyboard  
+OBJS += Simple/GamePad Simple/GLCD Simple/Gravity Simple/Gyroscope Simple/Internet Simple/IOT Simple/Keyboard  
 OBJS += Simple/Keypad Simple/Led Simple/Light Simple/Magnetometer Simple/Mic Simple/MusicPlayer 
 OBJS += Simple/NFC Simple/Notification Simple/Orientation Simple/Pattern
 OBJS += Simple/Phone Simple/Proximity Simple/PushButton Simple/Slider
 OBJS += Simple/Temperature Simple/Terminal Simple/Twitter Simple/Vibration Simple/VoiceRecognition
 OBJS += Advanced/Accelerometer Advanced/BarcodeScanner Advanced/Buzzer Advanced/Camera 
 OBJS += Advanced/Clock Advanced/Color Advanced/Email Advanced/Facebook Advanced/Foursquare 
-OBJS += Advanced/GamePad Advanced/GLCD Advanced/GPS Advanced/Gravity Advanced/Internet 
+OBJS += Advanced/GamePad Advanced/GLCD Advanced/GPS Advanced/Gravity Advanced/Internet Advanced/IOT
 OBJS += Advanced/Keypad Advanced/LCD Advanced/Light Advanced/Magnetometer Advanced/Mic 
 OBJS += Advanced/MusicPlayer Advanced/NFC Advanced/Notification
 OBJS += Advanced/Orientation Advanced/Phone Advanced/Pressure Advanced/Proximity 
