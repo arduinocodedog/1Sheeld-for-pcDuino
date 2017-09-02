@@ -42,7 +42,7 @@ typedef unsigned char byte;
 #define START_OF_FRAME  0xFF
 #define END_OF_FRAME 	0x00
 //Library Version
-#define LIBRARY_VERSION 17
+#define LIBRARY_VERSION 18
 //Time between sending Frames
 #define TIME_GAP		200UL
 
